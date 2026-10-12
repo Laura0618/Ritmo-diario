@@ -60,3 +60,34 @@ export interface LibCategory {
 
 /** Casillas marcadas de un dia, por id de tarea. */
 export type DayChecks = Record<string, boolean>;
+
+/** Nivel de un habito del libro, para la primera eleccion. */
+export type HabitTier = 'esencial' | 'recomendado' | 'opcional';
+
+/** Referencia de la hora de un habito. */
+export type Anchor = 'wake' | 'bed' | 'sunset' | 'fixed';
+
+export interface HabitTime {
+  anchor: Anchor;
+  /** Minutos respecto a la referencia; con 'fixed', minuto del dia (0-1439). */
+  offset: number;
+}
+
+export interface CustomHabit {
+  id: string;
+  what: string;
+  how: string;
+  tag: Tag;
+  time: HabitTime;
+}
+
+/** Documento sincronizado `habits`: que tareas sigue la persona y a que hora. */
+export interface HabitConfig {
+  /** Ya hizo la primera eleccion. */
+  onboarded: boolean;
+  /** Habitos del libro activos (por id). Los que no estan, inactivos. */
+  enabled: Record<string, boolean>;
+  /** Horas cambiadas de habitos del libro (por id). */
+  times: Record<string, HabitTime>;
+  custom: CustomHabit[];
+}

@@ -1,5 +1,13 @@
 import type { ReactNode } from 'react';
 import { toMinutes } from '../lib/time';
+import type { Tag } from '../types';
+
+const TAG_COLOR: Record<Tag, string> = {
+  sueno: 'var(--blue)',
+  luz: 'var(--orange)',
+  estres: 'var(--red)',
+  cuerpo: 'var(--yellow)',
+};
 
 const C = 160; // centro del viewBox 320x320
 const RING_R = 122;
@@ -24,11 +32,13 @@ interface DialProps {
   bed: string;
   sunset: string;
   now: number;
+  /** Habitos propios: un punto en el borde interior del reloj. */
+  marks?: readonly { t: number; tag: Tag }[];
   children?: ReactNode;
 }
 
 /** Reloj de 24 h con sueño, ventanas de luz, luz tenue, cafeina y minimo de temperatura. */
-export function Dial({ wake, bed, sunset, now, children }: DialProps): JSX.Element {
+export function Dial({ wake, bed, sunset, now, marks = [], children }: DialProps): JSX.Element {
   const W = toMinutes(wake);
   const B = toMinutes(bed);
   const SS = toMinutes(sunset);
@@ -78,6 +88,10 @@ export function Dial({ wake, bed, sunset, now, children }: DialProps): JSX.Eleme
         <path d={arc(W, W + 60, RING_R)} fill="none" stroke="var(--orange)" strokeWidth={RING_W} />
         <path d={arc(SS - 60, SS, RING_R)} fill="none" stroke="var(--orange)" strokeWidth={RING_W} opacity={0.7} />
         <path d={arc(W + 30, B - 600, 100)} fill="none" stroke="var(--yellow)" strokeWidth={4} strokeLinecap="round" />
+        {marks.map((m, i) => {
+          const [mx, my] = polar(m.t, 108);
+          return <circle key={i} cx={mx} cy={my} r={3.5} fill={TAG_COLOR[m.tag]} stroke="var(--surface)" strokeWidth={1.5} />;
+        })}
         <circle cx={tx} cy={ty} r={4.5} fill="var(--surface)" stroke="var(--blue)" strokeWidth={2}>
           <title>Mínimo de temperatura</title>
         </circle>

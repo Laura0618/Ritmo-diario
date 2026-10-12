@@ -1,5 +1,6 @@
-import type { DayChecks, DayItem, Settings, Sex, WeekDay } from '../types';
-import { since, toMinutes, wrap } from './time';
+import type { DayChecks, DayItem, HabitConfig, Settings, Sex, WeekDay } from '../types';
+import { BOOK_HABITS, bookTimeFor, isEnabled, resolveTime } from './habits';
+import { since, toMinutes } from './time';
 
 export const DEFAULT_SETTINGS: Settings = {
   wake: '07:00',
@@ -82,118 +83,42 @@ export function waterForSession(kg: number, minutes: number): number {
   return Math.round((per * minutes) / 17.5 / 50) * 50;
 }
 
-/** Tareas del dia, ordenadas desde la hora de despertar. */
-export function buildDayItems(settings: Settings, date: Date): DayItem[] {
+/**
+ * Tareas del dia: los habitos activos del libro y los propios, con su hora
+ * resuelta segun los horarios de la persona, ordenadas desde la hora de despertar.
+ * Sin configuracion se usan todos los habitos del libro.
+ */
+export function buildDayItems(settings: Settings, date: Date, config?: HabitConfig): DayItem[] {
   const W = toMinutes(settings.wake);
-  const B = toMinutes(settings.bed);
-  const SS = toMinutes(settings.sunset);
   const today = planDayFor(date, settings.day1);
   const zoneText = today.zone
     ? `Al ${Math.round(today.zone[0] * 100)}–${Math.round(today.zone[1] * 100)} % de tu FC máxima. `
     : '';
 
-  const items: DayItem[] = [
-    { id: 'agua', t: W, tag: 'cuerpo', what: 'Agua al despertar', how: '0,5–0,7 L antes del café.' },
-    {
-      id: 'medit',
-      t: W,
-      tag: 'estres',
-      what: 'Micromeditación en la cama',
-      how: '5 min. Si te entran ganas de levantarte, quédate: es entrenamiento de resiliencia.',
-    },
-    {
-      id: 'luz',
-      t: W + 10,
-      tag: 'luz',
-      what: 'Luz natural en los ojos',
-      how: '5–10 min fuera, mirando hacia el sol sin fijar la vista. 10–30 min si está nublado. Sin gafas de sol ni cristal.',
-    },
-    {
-      id: 'cafe',
-      t: W + 75,
-      tag: 'cuerpo',
-      what: 'Primera cafeína',
-      how: 'Retrásala entre 30 y 90 min tras despertar para evitar el bajón de la tarde.',
-    },
-    {
-      id: 'mover',
-      t: W + 120,
-      tag: 'cuerpo',
-      what: today.kind === 'descanso' ? 'Día de descanso activo' : `Entrenamiento: ${today.title}`,
-      how:
-        today.kind === 'descanso'
-          ? today.desc
-          : `${today.title}. ${zoneText}Mejor en las primeras 2–3 h del día.`,
-    },
-    {
-      id: 'paseo',
-      t: W + 360,
-      tag: 'cuerpo',
-      what: 'Paseo después de comer',
-      how: '5–10 min. Y 5 min de movimiento por cada 30 sentada.',
-    },
-    { id: 'corte', t: B - 600, tag: 'sueno', what: 'Última cafeína', how: 'Nada de cafeína en las 8–10 h antes de dormir.' },
-    {
-      id: 'nsdr',
-      t: W + 420,
-      tag: 'estres',
-      what: 'NSDR si notas el bajón',
-      how: '10–20 min en lugar de siesta. Tienes la guía en Herramientas.',
-    },
-    {
-      id: 'agua2',
-      t: W + 600,
-      tag: 'cuerpo',
-      what: 'Unos 2,4 L de agua acumulados',
-      how: 'Bebe sobre todo en las primeras 10 h para no despertarte de noche.',
-    },
-    {
-      id: 'tarde',
-      t: SS - 45,
-      tag: 'luz',
-      what: 'Luz del atardecer',
-      how: '10–15 min fuera antes de la puesta, mirando hacia el oeste.',
-    },
-    {
-      id: 'alcohol',
-      t: B - 480,
-      tag: 'sueno',
-      what: 'Sin alcohol desde aquí',
-      how: 'Si bebes, nada en las 8 h previas a dormir. Cuanto menos, mejor.',
-    },
-    {
-      id: 'cena',
-      t: B - 180,
-      tag: 'sueno',
-      what: 'Última comida',
-      how: '2–3 h antes de dormir. Si tienes hambre real, algo ligero 1 h antes.',
-    },
-    {
-      id: 'ducha',
-      t: B - 90,
-      tag: 'sueno',
-      what: 'Ducha o baño caliente',
-      how: 'Calentar manos y pies ayuda a que baje la temperatura central.',
-    },
-    {
-      id: 'luces',
-      t: B - 60,
-      tag: 'luz',
-      what: 'Luces bajas y pantallas fuera',
-      how: 'Luz cálida o roja, nada de LED blanco. Dormitorio a 18–20 °C.',
-    },
-    {
-      id: 'dormir',
-      t: B,
-      tag: 'sueno',
-      what: 'A dormir',
-      how: 'Pies y manos fuera de la manta. Si te despiertas, no mires el reloj ni enciendas luces.',
-    },
-  ];
+  const book: DayItem[] = BOOK_HABITS.filter((h) => !config || isEnabled(h.id, config)).map((h) => {
+    const item: DayItem = {
+      id: h.id,
+      t: resolveTime(config ? bookTimeFor(h, config) : h.time, settings),
+      tag: h.tag,
+      what: h.what,
+      how: h.how,
+    };
+    if (h.id === 'mover') {
+      item.what = today.kind === 'descanso' ? 'Día de descanso activo' : `Entrenamiento: ${today.title}`;
+      item.how = today.kind === 'descanso' ? today.desc : `${today.title}. ${zoneText}Mejor en las primeras 2–3 h del día.`;
+    }
+    return item;
+  });
 
-  return items
-    .map((item) => ({ ...item, t: wrap(item.t) }))
-    .sort((a, b) => since(a.t, W) - since(b.t, W));
+  const custom: DayItem[] = (config?.custom ?? []).map((c) => ({
+    id: c.id,
+    t: resolveTime(c.time, settings),
+    tag: c.tag,
+    what: c.what,
+    how: c.how,
+  }));
+
+  return [...book, ...custom].sort((a, b) => since(a.t, W) - since(b.t, W) || a.what.localeCompare(b.what, 'es'));
 }
 
 /**

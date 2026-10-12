@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSync } from '../store/SyncProvider';
 
 function formatSync(d: Date | null): string {
@@ -38,7 +38,17 @@ export function AjustesPage(): JSX.Element {
         </p>
       )}
 
-      <section className="panel settings-panel" aria-labelledby="h-cuenta">
+      <section className="panel settings-panel" aria-labelledby="h-habitos">
+        <h2 id="h-habitos">Hábitos</h2>
+        <p className="lede">Elige qué tareas aparecen en tu plan de hoy, cambia sus horas y añade las tuyas.</p>
+        <div className="btn-row">
+          <Link to="/habitos" className="btn ghost">
+            Editar hábitos
+          </Link>
+        </div>
+      </section>
+
+      <section className="panel settings-panel spaced" aria-labelledby="h-cuenta">
         <h2 id="h-cuenta">Cuenta y sincronización</h2>
 
         {authStatus === 'loading' && <p className="lede">Comprobando la sesión…</p>}

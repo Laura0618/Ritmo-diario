@@ -1,5 +1,8 @@
 import { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { Dial, DialLegend } from '../components/Dial';
+import { HabitOnboarding } from '../components/HabitOnboarding';
+import { useHabits } from '../hooks/useHabits';
 import { useDayChecks } from '../hooks/useDayChecks';
 import { useNow } from '../hooks/useNow';
 import { buildDayItems, nextItem } from '../lib/plan';
@@ -14,11 +17,17 @@ export function HoyPage(): JSX.Element {
   const now = useNow();
   const today = dateKey(now);
   const [checks, toggle] = useDayChecks(today);
+  const { config, save } = useHabits();
 
-  const items = useMemo(() => buildDayItems(settings, now), [settings, today]); // eslint-disable-line react-hooks/exhaustive-deps
+  const items = useMemo(() => buildDayItems(settings, now, config), [settings, config, today]); // eslint-disable-line react-hooks/exhaustive-deps
+  const marks = useMemo(
+    () => items.filter((i) => i.id.startsWith('c-')).map((i) => ({ t: i.t, tag: i.tag })),
+    [items],
+  );
   const nowMin = minuteOfDay(now);
   const next = nextItem(items, checks, nowMin, settings.wake);
   const done = items.filter((i) => checks[i.id]).length;
+  const visibleNext = config.onboarded ? next : null;
 
   const W = toMinutes(settings.wake);
   const untilNext = next ? since(next.t, W) - since(nowMin, W) : 0;
@@ -29,12 +38,16 @@ export function HoyPage(): JSX.Element {
         <h2 id="h-reloj" className="sr-only">
           Tu reloj de hoy
         </h2>
-        <Dial wake={settings.wake} bed={settings.bed} sunset={settings.sunset} now={nowMin}>
+        <Dial wake={settings.wake} bed={settings.bed} sunset={settings.sunset} now={nowMin} marks={marks}>
           <div className="now">{formatTime(nowMin)}</div>
           <div className="next">
-            {next ? (
+            {!config.onboarded ? (
               <>
-                <b>{next.what}</b>
+                <b>Elige tus hábitos</b>para ver tu plan
+              </>
+            ) : visibleNext ? (
+              <>
+                <b>{visibleNext.what}</b>
                 {untilNext > 0 ? `en ${formatDuration(untilNext)}` : 'ahora'}
               </>
             ) : (
@@ -80,40 +93,54 @@ export function HoyPage(): JSX.Element {
         </p>
       </section>
 
-      <section className="panel" aria-labelledby="h-plan">
-        <div className="progress-head">
-          <h2 id="h-plan">Plan de hoy</h2>
-          <span className="mono muted">
-            {done}/{items.length}
-          </span>
-          <div className="bar" aria-hidden="true">
-            <i style={{ width: `${(done / items.length) * 100}%` }} />
-          </div>
-        </div>
-        <ol className="timeline">
-          {items.map((item) => {
-            const isDone = Boolean(checks[item.id]);
-            const classes = [isDone ? 'done' : '', next?.id === item.id ? 'is-next' : ''].filter(Boolean).join(' ');
-            return (
-              <li key={item.id} className={classes || undefined}>
-                <span className="t">{formatTime(item.t)}</span>
-                <input
-                  type="checkbox"
-                  className="check"
-                  id={`c-${item.id}`}
-                  checked={isDone}
-                  onChange={(e) => toggle(item.id, e.target.checked)}
-                  aria-label={`Hecho: ${item.what}`}
-                />
-                <label htmlFor={`c-${item.id}`} className="item-body">
-                  <span className="what">{item.what}</span>
-                  <span className={`tag ${item.tag}`}>{TAG_LABEL[item.tag]}</span>
-                  <span className="how">{item.how}</span>
-                </label>
-              </li>
-            );
-          })}
-        </ol>
+      <section className="panel" aria-labelledby={config.onboarded ? 'h-plan' : 'h-elige'}>
+        {!config.onboarded ? (
+          <HabitOnboarding config={config} onDone={save} />
+        ) : (
+          <>
+            <div className="progress-head">
+              <h2 id="h-plan">Plan de hoy</h2>
+              <span className="mono muted">
+                {done}/{items.length}
+              </span>
+              <Link to="/habitos" className="edit-link">
+                Editar hábitos
+              </Link>
+              <div className="bar" aria-hidden="true">
+                <i style={{ width: `${items.length ? (done / items.length) * 100 : 0}%` }} />
+              </div>
+            </div>
+            {items.length === 0 && (
+              <p className="lede">
+                No tienes hábitos activos. <Link to="/habitos">Elige alguno</Link> para ver tu plan de hoy.
+              </p>
+            )}
+            <ol className="timeline">
+              {items.map((item) => {
+                const isDone = Boolean(checks[item.id]);
+                const classes = [isDone ? 'done' : '', next?.id === item.id ? 'is-next' : ''].filter(Boolean).join(' ');
+                return (
+                  <li key={item.id} className={classes || undefined}>
+                    <span className="t">{formatTime(item.t)}</span>
+                    <input
+                      type="checkbox"
+                      className="check"
+                      id={`chk-${item.id}`}
+                      checked={isDone}
+                      onChange={(e) => toggle(item.id, e.target.checked)}
+                      aria-label={`Hecho: ${item.what}`}
+                    />
+                    <label htmlFor={`chk-${item.id}`} className="item-body">
+                      <span className="what">{item.what}</span>
+                      <span className={`tag ${item.tag}`}>{TAG_LABEL[item.tag]}</span>
+                      <span className="how">{item.how}</span>
+                    </label>
+                  </li>
+                );
+              })}
+            </ol>
+          </>
+        )}
       </section>
     </div>
   );
