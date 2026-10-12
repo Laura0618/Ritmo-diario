@@ -1,0 +1,16 @@
+# Despliegue en Cloudflare: un Worker que solo sirve la PWA (assets estaticos).
+# No hay backend ni base de datos: los datos de cada persona se guardan en su navegador.
+#
+# En Cloudflare -> Workers & Pages -> Create -> Workers -> Import a repository:
+#   Repositorio:     Laura0618/ritmo-diario
+#   Build command:   npm run build
+#   Deploy command:  npx wrangler deploy
+#   Version de Node: se toma de .node-version (22)
+
+name = "ritmo-diario"
+compatibility_date = "2024-09-01"
+
+[assets]
+directory = "./dist"
+# Fallback SPA para React Router en rutas que no son un archivo.
+not_found_handling = "single-page-application"

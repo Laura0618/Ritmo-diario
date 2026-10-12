@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Ritmo Diario">
+  <defs>
+    <radialGradient id="sol" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#F2C12E" />
+      <stop offset=".45" stop-color="#F08A1C" />
+      <stop offset=".8" stop-color="#D1371E" />
+      <stop offset="1" stop-color="#B02816" />
+    </radialGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#2B7FD6" />
+  <circle cx="32" cy="32" r="19" fill="url(#sol)" />
+</svg>
