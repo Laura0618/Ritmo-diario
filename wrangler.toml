@@ -30,7 +30,7 @@ run_worker_first = ["/api/*"]
 # URL publica de la app, SIN barra final.
 APP_URL = "https://ritmo-diario.castrolaura0311.workers.dev"
 # Client ID de Google OAuth (publico).
-GOOGLE_CLIENT_ID = ""
+GOOGLE_CLIENT_ID = "848439266426-7ni6uplbrgc7gusfal9ruf0fpeo81trr.apps.googleusercontent.com"
 
 # Base de datos D1. El esquema se crea solo al arrancar (ver migrations/0001_init.sql).
 [[d1_databases]]
