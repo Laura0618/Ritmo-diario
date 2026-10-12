@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Segmented } from '../Segmented';
 import { beep, keepScreenOn, speak, stopSpeaking } from '../../lib/device';
 import { NSDR_AUDIO, NSDR_DURATIONS, NSDR_SCRIPT, stepAt, stepStarts, type NsdrMinutes } from '../../lib/nsdr';
-import { KEYS, readJSON, writeJSON } from '../../lib/storage';
+import { docStore } from '../../lib/docs';
 import { formatClock } from '../../lib/time';
 
 const IDLE_TEXT = 'Elige la duración y pulsa empezar. Activa la voz si vas a cerrar los ojos.';
@@ -17,6 +17,8 @@ export function NsdrTool(): JSX.Element {
   const [progress, setProgress] = useState(0);
   const interval = useRef<number | null>(null);
   const voiceRef = useRef(voice);
+  const minutesRef = useRef(minutes);
+  minutesRef.current = minutes;
   voiceRef.current = voice;
 
   useEffect(
@@ -44,7 +46,7 @@ export function NsdrTool(): JSX.Element {
     );
     if (completed) {
       beep(440, 700);
-      writeJSON(KEYS.nsdrCount, readJSON<number>(KEYS.nsdrCount, 0) + 1);
+      docStore.set(`log:nsdr:${Date.now()}`, { m: minutesRef.current });
     }
   }
 

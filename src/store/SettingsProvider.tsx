@@ -1,7 +1,7 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useMemo, type ReactNode } from 'react';
 import type { Settings } from '../types';
 import { DEFAULT_SETTINGS } from '../lib/plan';
-import { KEYS, readJSON, writeJSON } from '../lib/storage';
+import { docStore, useDoc } from '../lib/docs';
 
 interface SettingsContextValue {
   settings: Settings;
@@ -9,11 +9,11 @@ interface SettingsContextValue {
 }
 
 const SettingsContext = createContext<SettingsContextValue | null>(null);
+const EMPTY: Partial<Settings> = {};
 
-function loadSettings(): Settings {
-  const stored = readJSON<Partial<Settings>>(KEYS.settings, {});
+function normalize(stored: Partial<Settings>): Settings {
   const merged: Settings = { ...DEFAULT_SETTINGS, ...stored };
-  // Versiones anteriores guardaban numeros como texto.
+  // La primera version guardaba algunos numeros como texto.
   merged.day1 = Number(merged.day1);
   merged.age = Number(merged.age);
   merged.kg = Number(merged.kg);
@@ -21,15 +21,14 @@ function loadSettings(): Settings {
   return merged;
 }
 
+/** Ajustes de la persona, guardados como el documento sincronizable `settings`. */
 export function SettingsProvider({ children }: { children: ReactNode }): JSX.Element {
-  const [settings, setSettings] = useState<Settings>(loadSettings);
+  const stored = useDoc<Partial<Settings>>('settings', EMPTY);
+  const settings = useMemo(() => normalize(stored), [stored]);
 
   const update = useCallback((patch: Partial<Settings>) => {
-    setSettings((prev) => {
-      const next = { ...prev, ...patch };
-      writeJSON(KEYS.settings, next);
-      return next;
-    });
+    const current = normalize(docStore.get<Partial<Settings>>('settings', EMPTY));
+    docStore.set('settings', { ...current, ...patch });
   }, []);
 
   const value = useMemo(() => ({ settings, update }), [settings, update]);

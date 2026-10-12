@@ -30,8 +30,11 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
         navigateFallback: '/index.html',
+        // La API nunca se sirve desde la cache ni desde el fallback SPA (p. ej. /api/auth/login).
+        navigateFallbackDenylist: [/^\/api\//],
         cleanupOutdatedCaches: true,
         runtimeCaching: [
+          { urlPattern: /\/api\//, handler: 'NetworkOnly' },
           {
             // Tipografias de Google: se guardan para que la app funcione sin conexion.
             urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
@@ -46,6 +49,10 @@ export default defineConfig({
       },
     }),
   ],
+  server: {
+    // En desarrollo, `npm run dev` (Vite :5173) reenvia /api a `npm run dev:api` (wrangler dev :8787).
+    proxy: { '/api': { target: 'http://localhost:8787', changeOrigin: true } },
+  },
   build: {
     rollupOptions: {
       output: {

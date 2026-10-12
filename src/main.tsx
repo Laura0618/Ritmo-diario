@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { registerSW } from 'virtual:pwa-register';
 import App from './App';
 import { SettingsProvider } from './store/SettingsProvider';
+import { SyncProvider } from './store/SyncProvider';
 import './index.css';
 
 registerSW({ immediate: true });
@@ -14,9 +15,11 @@ if (!rootElement) throw new Error('No se encontró el elemento #root.');
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <BrowserRouter>
-      <SettingsProvider>
-        <App />
-      </SettingsProvider>
+      <SyncProvider>
+        <SettingsProvider>
+          <App />
+        </SettingsProvider>
+      </SyncProvider>
     </BrowserRouter>
   </React.StrictMode>,
 );

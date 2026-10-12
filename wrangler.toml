@@ -1,16 +1,40 @@
-# Despliegue en Cloudflare: un Worker que solo sirve la PWA (assets estaticos).
-# No hay backend ni base de datos: los datos de cada persona se guardan en su navegador.
+# Despliegue en Cloudflare: un unico Worker que sirve la PWA (assets) y la API (/api/*).
 #
-# En Cloudflare -> Workers & Pages -> Create -> Workers -> Import a repository:
-#   Repositorio:     Laura0618/ritmo-diario
+# Cloudflare -> Workers & Pages -> ritmo-diario (conectado a GitHub, despliegue en cada push a main):
 #   Build command:   npm run build
 #   Deploy command:  npx wrangler deploy
 #   Version de Node: se toma de .node-version (22)
+#
+# Para el inicio de sesion con Google hace falta, una sola vez:
+#   1. GOOGLE_CLIENT_ID (abajo, no es secreto) y en Google Cloud Console:
+#        URI de redireccion:  https://ritmo-diario.castrolaura0311.workers.dev/api/auth/callback
+#        Origen JavaScript:   https://ritmo-diario.castrolaura0311.workers.dev
+#   2. GOOGLE_CLIENT_SECRET como secreto del Worker (nunca en este archivo):
+#        Cloudflare -> ritmo-diario -> Settings -> Variables and Secrets -> Add -> Secret
+#   SESSION_SECRET es opcional: si no existe, el Worker genera uno y lo guarda en D1.
+# Sin GOOGLE_CLIENT_SECRET la app funciona igual, solo en modo local.
 
 name = "ritmo-diario"
+main = "worker/index.ts"
 compatibility_date = "2024-09-01"
 
 [assets]
 directory = "./dist"
+binding = "ASSETS"
 # Fallback SPA para React Router en rutas que no son un archivo.
 not_found_handling = "single-page-application"
+# La API pasa por el Worker antes que el fallback SPA.
+run_worker_first = ["/api/*"]
+
+[vars]
+# URL publica de la app, SIN barra final.
+APP_URL = "https://ritmo-diario.castrolaura0311.workers.dev"
+# Client ID de Google OAuth (publico).
+GOOGLE_CLIENT_ID = ""
+
+# Base de datos D1. El esquema se crea solo al arrancar (ver migrations/0001_init.sql).
+[[d1_databases]]
+binding = "DB"
+database_name = "ritmo_diario"
+database_id = "3fa691b3-d10b-4bba-8b8e-fce635e34559"
+migrations_dir = "migrations"

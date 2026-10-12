@@ -89,6 +89,7 @@ html{-webkit-text-size-adjust:100%}
 .brand-text{min-width:0}
 .brand-name{font-family:var(--display);font-weight:800;font-size:1.35rem;letter-spacing:-.03em;color:var(--blue);line-height:1.1}
 .brand-date{font-family:var(--mono);font-size:var(--fs-xs);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.header-end{display:flex;align-items:center;gap:var(--s3);min-width:0}
 .top-nav{display:none;gap:var(--s1)}
 .top-nav a,.bottom-nav a{text-decoration:none;color:var(--muted);font-family:var(--display);font-weight:600;transition:background var(--dur) var(--ease),color var(--dur) var(--ease)}
 .top-nav a{padding:0 var(--s4);min-height:40px;display:inline-flex;align-items:center;border-radius:var(--r-pill)}
@@ -238,3 +239,24 @@ details.p ul{margin:var(--s3) 0 2px;padding-left:18px;font-size:var(--fs-sm);col
 .empty{color:var(--muted);padding:var(--s5) 0}
 
 @media (prefers-reduced-motion: reduce){*{transition-duration:.01ms!important;animation:none!important}}
+
+/* ---------- Cuenta y ajustes ---------- */
+.account-chip{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 var(--s3);border-radius:var(--r-pill);font-size:var(--fs-sm);font-weight:700;text-decoration:none;white-space:nowrap;background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line)}
+.account-chip:hover{border-color:var(--line-strong)}
+.account-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.account-chip[data-tone="ok"] .dot{background:var(--ok)}
+.account-chip[data-tone="busy"] .dot{background:var(--blue)}
+.account-chip[data-tone="warn"]{color:var(--c-luz);background:var(--c-luz-bg);border-color:transparent}
+.account-chip[data-tone="warn"] .dot{background:var(--orange)}
+.account-chip[data-tone="neutral"]{color:var(--blue);background:var(--blue-soft);border-color:transparent}
+.settings-panel{display:flex;flex-direction:column;gap:var(--s4);max-width:640px}
+.account{display:flex;align-items:center;gap:var(--s3)}
+.avatar{width:48px;height:48px;border-radius:50%;object-fit:cover;flex:0 0 auto;display:grid;place-items:center;background:var(--blue-soft);color:var(--blue);font-family:var(--display);font-weight:700;font-size:1.2rem}
+.account-text{min-width:0}
+.account-name{font-family:var(--display);font-weight:600;font-size:var(--fs-md)}
+.kv{display:grid;grid-template-columns:max-content 1fr;gap:var(--s2) var(--s4);margin:0;font-size:var(--fs-sm)}
+.kv dt{color:var(--muted);font-weight:700}
+.kv dd{margin:0}
+.notice{padding:var(--s3) var(--s4);border-radius:var(--r-md);margin-bottom:var(--s4);font-weight:700;background:var(--blue-soft);color:var(--c-sueno)}
+.notice[data-tone="error"]{background:var(--c-estres-bg);color:var(--c-estres)}
+@media (max-width:440px){.brand-date{display:none}}

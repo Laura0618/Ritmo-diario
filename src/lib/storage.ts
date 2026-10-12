@@ -1,7 +1,6 @@
 /**
- * Persistencia local. Todo vive en el navegador de cada persona; no hay servidor.
- * Cada lectura y escritura tolera que el almacenamiento no exista o falle
- * (modo privado, cuota llena, etc.).
+ * Preferencias de interfaz que solo tienen sentido en este dispositivo
+ * (no se sincronizan). Los datos de la persona viven en `docs.ts`.
  */
 const PREFIX = 'ritmo-diario:v1:';
 
@@ -23,9 +22,5 @@ export function writeJSON(key: string, value: unknown): void {
 }
 
 export const KEYS = {
-  settings: 'settings',
-  checks: (day: string) => `checks:${day}`,
-  coldLog: 'coldLog',
-  nsdrCount: 'nsdrCount',
   libCategory: 'libCategory',
 } as const;

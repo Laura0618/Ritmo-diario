@@ -4,6 +4,7 @@ import { HoyPage } from './pages/HoyPage';
 import { HerramientasPage } from './pages/HerramientasPage';
 import { SemanaPage } from './pages/SemanaPage';
 import { BibliotecaPage } from './pages/BibliotecaPage';
+import { AjustesPage } from './pages/AjustesPage';
 import { NoEncontradoPage } from './pages/NoEncontradoPage';
 
 export default function App(): JSX.Element {
@@ -14,6 +15,7 @@ export default function App(): JSX.Element {
         <Route path="herramientas" element={<HerramientasPage />} />
         <Route path="semana" element={<SemanaPage />} />
         <Route path="biblioteca" element={<BibliotecaPage />} />
+        <Route path="ajustes" element={<AjustesPage />} />
         <Route path="*" element={<NoEncontradoPage />} />
       </Route>
     </Routes>

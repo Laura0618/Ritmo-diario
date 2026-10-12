@@ -1,16 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { Segmented } from '../Segmented';
 import { beep, keepScreenOn } from '../../lib/device';
-import { KEYS, readJSON, writeJSON } from '../../lib/storage';
+import { docStore, useDocsVersion } from '../../lib/docs';
 import { formatClock, weekStart } from '../../lib/time';
 
 type Target = 1 | 2 | 3;
 const TARGETS: readonly Target[] = [1, 2, 3];
 const CIRC = 2 * Math.PI * 88;
 
+const COLD_PREFIX = 'log:cold:';
+
+/** Sesiones de frio de esta semana (de lunes a domingo), en cualquier dispositivo. */
 function sessionsThisWeek(): number {
   const ws = weekStart(new Date());
-  return readJSON<number[]>(KEYS.coldLog, []).filter((t) => t >= ws).length;
+  return docStore.keys(COLD_PREFIX).filter((k) => Number(k.slice(COLD_PREFIX.length)) >= ws).length;
 }
 
 export function ColdTool(): JSX.Element {
@@ -18,7 +21,6 @@ export function ColdTool(): JSX.Element {
   const [running, setRunning] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [walls, setWalls] = useState(0);
-  const [week, setWeek] = useState(sessionsThisWeek);
   const interval = useRef<number | null>(null);
   const elapsedRef = useRef(0);
   const beeped = useRef(false);
@@ -35,13 +37,10 @@ export function ColdTool(): JSX.Element {
     if (interval.current) window.clearInterval(interval.current);
     interval.current = null;
     if (elapsedRef.current >= 30) {
-      const log = readJSON<number[]>(KEYS.coldLog, []);
-      log.push(Date.now());
-      writeJSON(KEYS.coldLog, log.slice(-60));
+      docStore.set(`${COLD_PREFIX}${Date.now()}`, { s: Math.round(elapsedRef.current) });
     }
     void keepScreenOn(false);
     setRunning(false);
-    setWeek(sessionsThisWeek());
   }
 
   function start(): void {
@@ -66,6 +65,8 @@ export function ColdTool(): JSX.Element {
     }, 250);
   }
 
+  useDocsVersion();
+  const week = sessionsThisWeek();
   const goal = target * 60;
   const ratio = Math.min(1, elapsed / goal);
   const reached = elapsed >= goal;

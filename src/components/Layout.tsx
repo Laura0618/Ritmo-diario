@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { useNow } from '../hooks/useNow';
 import { longDate } from '../lib/time';
+import { AccountChip } from './AccountChip';
 import { IconLibrary, IconToday, IconTools, IconWeek } from './Icons';
 
 const NAV_ITEMS = [
@@ -27,13 +28,16 @@ export function Layout(): JSX.Element {
             <p className="brand-date">{longDate(now)}</p>
           </div>
         </div>
-        <nav aria-label="Navegación principal" className="top-nav">
-          {NAV_ITEMS.map(({ to, label }) => (
-            <NavLink key={to} to={to} end={to === '/'}>
-              {label}
-            </NavLink>
-          ))}
-        </nav>
+        <div className="header-end">
+          <nav aria-label="Navegación principal" className="top-nav">
+            {NAV_ITEMS.map(({ to, label }) => (
+              <NavLink key={to} to={to} end={to === '/'}>
+                {label}
+              </NavLink>
+            ))}
+          </nav>
+          <AccountChip />
+        </div>
       </header>
 
       <main id="contenido" className="app-main">
@@ -47,7 +51,7 @@ export function Layout(): JSX.Element {
             No es consejo médico. Consulta a un profesional antes de tomar suplementos, empezar con el frío o cambiar tu
             entrenamiento si tienes alguna condición de salud.
           </p>
-          <p>Tus horarios y casillas se guardan solo en este dispositivo.</p>
+          <p>Sin cuenta, tus datos se guardan solo en este dispositivo. Con cuenta, se sincronizan entre tus dispositivos.</p>
         </footer>
       </main>
 
