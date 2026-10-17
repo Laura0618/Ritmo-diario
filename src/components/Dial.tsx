@@ -92,20 +92,19 @@ export function Dial({ wake, bed, sunrise, sunset, now, children }: DialProps): 
           <path
             d={arc(W, EX_END, RING_R + 11)}
             fill="none"
-            stroke="var(--c-mente)"
-            strokeWidth={2}
+            stroke="var(--yellow)"
+            strokeWidth={2.5}
             strokeLinecap="round"
-            opacity={0.85}
           />
         )}
         <path d={arc(B, W, RING_R)} fill="none" stroke="var(--blue)" strokeWidth={RING_W} />
-        <path d={arc(B - 60, B, RING_R)} fill="none" stroke="var(--red)" strokeWidth={RING_W} />
+        <path d={arc(B - 60, B, RING_R)} fill="none" stroke="var(--orange)" strokeWidth={RING_W} opacity={0.45} />
         <path d={arc(W, W + 60, RING_R)} fill="none" stroke="var(--orange)" strokeWidth={RING_W} />
         <path d={arc(SS - 60, SS, RING_R)} fill="none" stroke="var(--orange)" strokeWidth={RING_W} opacity={0.7} />
         <path
           d={arc(W + 30, B - 600, 100)}
           fill="none"
-          stroke="var(--c-luz)"
+          stroke="var(--muted)"
           strokeWidth={2.5}
           strokeLinecap="round"
           opacity={0.75}

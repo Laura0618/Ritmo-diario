@@ -16,8 +16,8 @@ export default defineConfig({
         description:
           'Tu dia organizado segun tu reloj biologico: luz, cafeina, ejercicio, temperatura y descanso.',
         lang: 'es',
-        theme_color: '#F7F7F5',
-        background_color: '#F7F7F5',
+        theme_color: '#FFFFFF',
+        background_color: '#FFFFFF',
         display: 'standalone',
         start_url: '/',
         scope: '/',

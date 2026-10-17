@@ -15,5 +15,5 @@ export const TAG_COLOR: Record<Tag, string> = {
   luz: 'var(--orange)',
   estres: 'var(--red)',
   cuerpo: 'var(--yellow)',
-  mente: 'var(--c-mente)',
+  mente: 'var(--muted)',
 };

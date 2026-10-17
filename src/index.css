@@ -1,24 +1,24 @@
-/* Protocolos · sistema de diseño
-   Idea: «ma» (間), el espacio en blanco japonés. Papel blanco, tinta sumi, un único sol.
+/* Protocolos · sistema de diseño (paleta Klein)
+   Idea: «ma» (間), el espacio en blanco. Blanco puro, tinta casi negra y un único azul ultramar (#0006F7).
    Web app pensada para iPhone: tipografía del sistema (SF Pro), barra de pestañas translúcida, áreas seguras.
-   El azul (ai-iro) es el único color de acción; el sol solo aparece en la marca, el reloj y el progreso. */
+   Color con significado: azul = sueño y avance; naranja = luz; amarillo = ejercicio. Los botones van en tinta. */
 :root{
   /* Color base */
-  --bg:#F7F7F5; --surface:#FFFFFF; --surface-2:#F1F1EE; --surface-3:#E6E6E2;
-  --ink:#1D1D1F; --ink-2:#3A3A3C; --muted:#7C7C80; --line:#E7E7E3; --line-strong:#D2D2CD;
+  --bg:#FFFFFF; --surface:#F4F4F6; --surface-2:#E8E8EE; --surface-3:#DCDCE4; --raised:#FFFFFF;
+  --ink:#14141A; --ink-2:#3A3A44; --muted:#74747E; --line:#E4E4EA; --line-strong:#CDCDD6;
   /* Marca */
-  --blue:#2B7FD6; --blue-strong:#1F68B8; --blue-soft:#E7F0FA; --on-blue:#FFFFFF;
-  --yellow:#F2C12E; --orange:#E86F17; --red:#D1371E;
-  --sun-grad:radial-gradient(circle at 50% 50%, var(--yellow) 0%, #F08A1C 45%, var(--red) 80%, #B02816 100%);
-  --sun-line:linear-gradient(90deg, var(--yellow), var(--orange) 55%, var(--red));
+  --blue:#0006F7; --blue-strong:#0005C4; --blue-soft:#E6E7FE; --on-blue:#FFFFFF;
+  --yellow:#FFC83D; --orange:#FF6B1A; --red:#E5381C;
+  --sun-grad:radial-gradient(circle at 50% 50%, var(--yellow) 0%, #FF9A2B 45%, var(--orange) 80%, #E5521A 100%);
+  --sun-line:linear-gradient(90deg, var(--yellow), var(--orange));
   /* Categorías: solo un punto de color y texto apagado */
-  --c-sueno:#1F68B8;  --c-sueno-bg:#E7F0FA;
-  --c-luz:#B4520A;    --c-luz-bg:#FBEDE1;
-  --c-estres:#B42D17; --c-estres-bg:#FAE6E1;
-  --c-cuerpo:#7A5800; --c-cuerpo-bg:#F8F0D6;
-  --c-mente:#5B4BB0;  --c-mente-bg:#ECE9F8;
-  --ok:#2E8B57;
-  --night:var(--blue); --sun:var(--orange); --dusk:var(--red);
+  --c-sueno:#0005C4;  --c-sueno-bg:#E6E7FE;
+  --c-luz:#B84400;    --c-luz-bg:#FFEDE2;
+  --c-estres:#B42D17; --c-estres-bg:#FCE6E1;
+  --c-cuerpo:#7A5600; --c-cuerpo-bg:#FFF4D6;
+  --c-mente:#5A5A66;  --c-mente-bg:#ECECF0;
+  --ok:#1E8C55;
+  --night:var(--blue); --sun:var(--orange); --dusk:var(--orange);
   /* Tipografía: la del sistema (SF Pro en Apple) */
   --body:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
   --display:-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, sans-serif;
@@ -35,29 +35,29 @@
   --tabbar-h:56px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#000000; --surface:#1C1C1E; --surface-2:#2C2C2E; --surface-3:#3A3A3C;
-  --ink:#F5F5F7; --ink-2:#D1D1D6; --muted:#98989D; --line:#2C2C2E; --line-strong:#48484A;
-  --blue:#5DA8F3; --blue-strong:#86BEF7; --blue-soft:#13283F; --on-blue:#000000;
-  --yellow:#F6CC4A; --orange:#F5923A; --red:#F1644B;
-  --c-sueno:#8CC2F8;  --c-sueno-bg:#13283F;
-  --c-luz:#F8B06A;    --c-luz-bg:#3A2616;
-  --c-estres:#F6917E; --c-estres-bg:#3D1C17;
-  --c-cuerpo:#F3D27A; --c-cuerpo-bg:#352C12;
-  --c-mente:#B7ACF2;  --c-mente-bg:#262145;
-  --ok:#5DC28C;
+  --bg:#000000; --surface:#141418; --surface-2:#24242C; --surface-3:#32323C; --raised:#3A3A44;
+  --ink:#F2F2F5; --ink-2:#D0D0D8; --muted:#8E8E99; --line:#24242C; --line-strong:#3E3E48;
+  --blue:#6B78FF; --blue-strong:#939CFF; --blue-soft:#15183F; --on-blue:#000000;
+  --yellow:#FFD45E; --orange:#FF8A45; --red:#FF6B52;
+  --c-sueno:#9AA3FF;  --c-sueno-bg:#15183F;
+  --c-luz:#FFAA78;    --c-luz-bg:#3A2213;
+  --c-estres:#FF9A86; --c-estres-bg:#3D1C17;
+  --c-cuerpo:#FFD879; --c-cuerpo-bg:#382C0E;
+  --c-mente:#B4B4C0;  --c-mente-bg:#26262E;
+  --ok:#4CC98A;
   --shadow-2:0 0 0 1px var(--line-strong);
   color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#000000; --surface:#1C1C1E; --surface-2:#2C2C2E; --surface-3:#3A3A3C;
-  --ink:#F5F5F7; --ink-2:#D1D1D6; --muted:#98989D; --line:#2C2C2E; --line-strong:#48484A;
-  --blue:#5DA8F3; --blue-strong:#86BEF7; --blue-soft:#13283F; --on-blue:#000000;
-  --yellow:#F6CC4A; --orange:#F5923A; --red:#F1644B;
-  --c-sueno:#8CC2F8;  --c-sueno-bg:#13283F;
-  --c-luz:#F8B06A;    --c-luz-bg:#3A2616;
-  --c-estres:#F6917E; --c-estres-bg:#3D1C17;
-  --c-cuerpo:#F3D27A; --c-cuerpo-bg:#352C12;
-  --c-mente:#B7ACF2;  --c-mente-bg:#262145;
-  --ok:#5DC28C;
+  --bg:#000000; --surface:#141418; --surface-2:#24242C; --surface-3:#32323C; --raised:#3A3A44;
+  --ink:#F2F2F5; --ink-2:#D0D0D8; --muted:#8E8E99; --line:#24242C; --line-strong:#3E3E48;
+  --blue:#6B78FF; --blue-strong:#939CFF; --blue-soft:#15183F; --on-blue:#000000;
+  --yellow:#FFD45E; --orange:#FF8A45; --red:#FF6B52;
+  --c-sueno:#9AA3FF;  --c-sueno-bg:#15183F;
+  --c-luz:#FFAA78;    --c-luz-bg:#3A2213;
+  --c-estres:#FF9A86; --c-estres-bg:#3D1C17;
+  --c-cuerpo:#FFD879; --c-cuerpo-bg:#382C0E;
+  --c-mente:#B4B4C0;  --c-mente-bg:#26262E;
+  --ok:#4CC98A;
   --shadow-2:0 0 0 1px var(--line-strong);
   color-scheme:dark}
 
@@ -108,7 +108,7 @@ button{-webkit-user-select:none;user-select:none}
 .settings-link[data-tone="warn"] .dot{background:var(--orange)}
 .app-main{flex:1;width:100%;max-width:1120px;margin:0 auto;padding-inline:max(var(--s5), env(safe-area-inset-left,0px));padding-block:var(--s4) calc(var(--tabbar-h) + var(--s7) + env(safe-area-inset-bottom,0px))}
 @media (max-width:380px){.app-main{padding-inline:var(--s4)}}
-.bottom-nav{position:fixed;inset-inline:0;bottom:0;z-index:30;display:flex;padding:4px max(var(--s2), env(safe-area-inset-right,0px)) env(safe-area-inset-bottom,0px) max(var(--s2), env(safe-area-inset-left,0px));background:color-mix(in srgb,var(--surface) 82%,transparent);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-top:.5px solid var(--line-strong)}
+.bottom-nav{position:fixed;inset-inline:0;bottom:0;z-index:30;display:flex;padding:4px max(var(--s2), env(safe-area-inset-right,0px)) env(safe-area-inset-bottom,0px) max(var(--s2), env(safe-area-inset-left,0px));background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-top:.5px solid var(--line)}
 .bottom-nav a{flex:1 1 0;min-width:0;height:var(--tabbar-h);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:.6875rem;font-weight:500;letter-spacing:0}
 .bottom-nav a span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bottom-nav a.active{color:var(--ink)}
@@ -142,7 +142,7 @@ button{-webkit-user-select:none;user-select:none}
 .seg{display:inline-flex;min-height:32px;border-radius:var(--r-sm);padding:2px;gap:2px;background:var(--surface-2)}
 .seg button:disabled{cursor:default}
 .seg button{border:0;background:transparent;padding:0 var(--s3);min-width:44px;border-radius:8px;font-size:var(--fs-xs);font-weight:500;font-variant-numeric:tabular-nums;cursor:pointer;color:var(--ink-2);transition:background var(--dur) var(--ease)}
-.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.seg button[aria-pressed="true"]{background:var(--raised);color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.1)}
 .seg[data-locked="1"]{opacity:.55}
 .settings input,.field input,.field select{color:var(--ink);min-height:var(--control-h);background:var(--surface-2);border:0;border-radius:var(--r-sm);padding:0 var(--s3);font-size:16px;font-variant-numeric:tabular-nums;min-width:0;width:100%;-webkit-appearance:none;appearance:none}
 .field select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:32px}
@@ -159,7 +159,7 @@ button{-webkit-user-select:none;user-select:none}
 .tag.luz::before,.kind.cardio::before{background:var(--orange)}
 .tag.estres::before{background:var(--red)}
 .tag.cuerpo::before,.kind.descanso::before{background:var(--yellow)}
-.tag.mente::before{background:var(--c-mente)}
+.tag.mente::before{background:var(--muted)}
 
 /* ---------- Hoy ---------- */
 .grid-today{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:var(--s5);align-items:start}
@@ -174,8 +174,8 @@ button{-webkit-user-select:none;user-select:none}
 .dial-center .date::first-letter{text-transform:uppercase}
 .legend{display:flex;flex-wrap:wrap;gap:var(--s1) var(--s4);justify-content:center;margin-top:var(--s4);font-size:var(--fs-xs);color:var(--muted)}
 .legend span{display:inline-flex;align-items:center;gap:6px}
-.legend .legend-line{width:12px;height:3px;border-radius:2px;background:var(--c-luz);opacity:.75}
-.legend .legend-line.exercise{background:var(--c-mente);opacity:.85}
+.legend .legend-line{width:12px;height:3px;border-radius:2px;background:var(--muted);opacity:.7}
+.legend .legend-line.exercise{background:var(--yellow);opacity:1}
 .legend i{width:7px;height:7px;border-radius:50%;display:inline-block}
 .settings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s2);margin-top:var(--s3)}
 .schedule{margin-top:var(--s5);border-top:.5px solid var(--line);padding-top:var(--s3)}
