@@ -6,8 +6,15 @@ export interface Settings {
   wake: string;
   /** Hora de dormir, "HH:MM". */
   bed: string;
-  /** Hora aproximada de la puesta de sol, "HH:MM". */
+  /** Salida del sol, "HH:MM". Con `sunAuto` se calcula cada día. */
+  sunrise: string;
+  /** Puesta de sol, "HH:MM". Con `sunAuto` se calcula cada día. */
   sunset: string;
+  /** Calcular salida y puesta de sol según la ubicación. */
+  sunAuto: boolean;
+  /** Ubicación aproximada (2 decimales); null usa la ubicación por defecto. */
+  lat: number | null;
+  lon: number | null;
   /** Dia de la semana (0 = domingo) en el que empieza el plan de ejercicio. */
   day1: number;
   /** Peso en kg, para el agua durante el ejercicio. */

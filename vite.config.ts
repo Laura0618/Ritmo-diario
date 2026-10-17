@@ -11,8 +11,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'robots.txt'],
       manifest: {
-        name: 'Ritmo Diario',
-        short_name: 'Ritmo',
+        name: 'Protocolos',
+        short_name: 'Protocolos',
         description:
           'Tu dia organizado segun tu reloj biologico: luz, cafeina, ejercicio, temperatura y descanso.',
         lang: 'es',

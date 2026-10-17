@@ -1,7 +1,5 @@
 import type { ReactNode } from 'react';
 import { toMinutes } from '../lib/time';
-import { TAG_COLOR } from '../lib/tags';
-import type { Tag } from '../types';
 
 const C = 160; // centro del viewBox 320x320
 const RING_R = 122;
@@ -24,28 +22,34 @@ function arc(m1: number, m2: number, r: number): string {
 interface DialProps {
   wake: string;
   bed: string;
+  sunrise: string;
   sunset: string;
   now: number;
-  /** Habitos con hora: un punto en el borde interior del reloj. */
-  marks?: readonly { t: number; tag: Tag }[];
   children?: ReactNode;
 }
 
-/** Reloj de 24 h con sueño, ventanas de luz, luz tenue y cafeina. */
-export function Dial({ wake, bed, sunset, now, marks = [], children }: DialProps): JSX.Element {
+/** Reloj de 24 h con la luz del día, el sueño, las ventanas de luz y la cafeína. */
+export function Dial({ wake, bed, sunrise, sunset, now, children }: DialProps): JSX.Element {
   const W = toMinutes(wake);
   const B = toMinutes(bed);
+  const SR = toMinutes(sunrise);
   const SS = toMinutes(sunset);
-  const [hx, hy] = polar(now, 140);
+  const [srx, sry] = polar(SR, RING_R + 11);
+  const [ssx, ssy] = polar(SS, RING_R + 11);
+  const [hx, hy] = polar(now, 143);
   const [bx, by] = polar(now, 92);
 
   return (
     <div className="dial-wrap">
-      <svg viewBox="0 0 320 320" role="img" aria-label="Reloj de 24 horas con tus ventanas de sueño, luz y cafeína">
+      <svg
+        viewBox="0 0 320 320"
+        role="img"
+        aria-label={`Reloj de 24 horas. Sol de ${sunrise} a ${sunset}; duermes de ${bed} a ${wake}.`}
+      >
         <circle cx={C} cy={C} r={RING_R} fill="none" stroke="var(--surface-2)" strokeWidth={RING_W} />
         {Array.from({ length: 24 }, (_, h) => {
-          const [x1, y1] = polar(h * 60, 134);
-          const [x2, y2] = polar(h * 60, h % 6 === 0 ? 141 : 137);
+          const [x1, y1] = polar(h * 60, 139);
+          const [x2, y2] = polar(h * 60, h % 6 === 0 ? 145 : 141);
           return (
             <line
               key={h}
@@ -60,7 +64,7 @@ export function Dial({ wake, bed, sunset, now, marks = [], children }: DialProps
           );
         })}
         {[0, 6, 12, 18].map((h) => {
-          const [x, y] = polar(h * 60, 151);
+          const [x, y] = polar(h * 60, 153.5);
           return (
             <text
               key={h}
@@ -75,15 +79,28 @@ export function Dial({ wake, bed, sunset, now, marks = [], children }: DialProps
             </text>
           );
         })}
+        <path
+          d={arc(SR, SS, RING_R + 11)}
+          fill="none"
+          stroke="var(--yellow)"
+          strokeWidth={2}
+          strokeLinecap="round"
+          opacity={0.9}
+        />
+        <circle cx={srx} cy={sry} r={3} fill="var(--yellow)" />
+        <circle cx={ssx} cy={ssy} r={3} fill="var(--orange)" />
         <path d={arc(B, W, RING_R)} fill="none" stroke="var(--blue)" strokeWidth={RING_W} />
         <path d={arc(B - 60, B, RING_R)} fill="none" stroke="var(--red)" strokeWidth={RING_W} />
         <path d={arc(W, W + 60, RING_R)} fill="none" stroke="var(--orange)" strokeWidth={RING_W} />
         <path d={arc(SS - 60, SS, RING_R)} fill="none" stroke="var(--orange)" strokeWidth={RING_W} opacity={0.7} />
-        <path d={arc(W + 30, B - 600, 100)} fill="none" stroke="var(--yellow)" strokeWidth={3} strokeLinecap="round" />
-        {marks.map((m, i) => {
-          const [mx, my] = polar(m.t, 110);
-          return <circle key={i} cx={mx} cy={my} r={3.5} fill={TAG_COLOR[m.tag]} stroke="var(--surface)" strokeWidth={1.5} />;
-        })}
+        <path
+          d={arc(W + 30, B - 600, 100)}
+          fill="none"
+          stroke="var(--c-luz)"
+          strokeWidth={2.5}
+          strokeLinecap="round"
+          opacity={0.75}
+        />
         <line x1={bx} y1={by} x2={hx} y2={hy} stroke="var(--ink)" strokeWidth={1.5} strokeLinecap="round" />
         <circle cx={hx} cy={hy} r={3.5} fill="var(--ink)" />
       </svg>
@@ -96,19 +113,23 @@ export function DialLegend(): JSX.Element {
   return (
     <div className="legend">
       <span>
+        <i style={{ background: 'var(--yellow)' }} />
+        Luz del día
+      </span>
+      <span>
         <i style={{ background: 'var(--blue)' }} />
         Sueño
       </span>
       <span>
         <i style={{ background: 'var(--orange)' }} />
-        Luz natural
+        Luz al despertar
       </span>
       <span>
         <i style={{ background: 'var(--red)' }} />
         Luz tenue
       </span>
       <span>
-        <i style={{ background: 'var(--yellow)' }} />
+        <i className="legend-line" />
         Cafeína
       </span>
     </div>

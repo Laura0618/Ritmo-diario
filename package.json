@@ -14,8 +14,8 @@
     "preview": "vite preview",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc -b",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "TZ=Europe/Madrid vitest run",
+    "test:watch": "TZ=Europe/Madrid vitest",
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {

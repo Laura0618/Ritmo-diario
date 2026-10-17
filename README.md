@@ -1,4 +1,4 @@
-# Ritmo Diario
+# Protocolos
 
 Aplicación web (PWA instalable y offline) que organiza el día según el reloj biológico
 —luz, cafeína, ejercicio, temperatura y descanso— a partir de las ideas del libro

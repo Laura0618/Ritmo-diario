@@ -1,13 +1,14 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Dial, DialLegend } from '../components/Dial';
+import { SchedulePanel } from '../components/SchedulePanel';
 import { AddHabitSheet } from '../components/habits/AddHabitSheet';
 import { HabitList } from '../components/habits/HabitList';
 import { useHabits } from '../hooks/useHabits';
 import { useNow } from '../hooks/useNow';
 import { docStore, useDocsVersion } from '../lib/docs';
 import { buildToday, nextTimed, todayProgress } from '../lib/habits';
-import { dateKey, formatDuration, formatTime, longDate, minuteOfDay, toMinutes, wrap } from '../lib/time';
+import { dateKey, formatTime, longDate, minuteOfDay } from '../lib/time';
 import { useSettings } from '../store/SettingsProvider';
 
 const isChecked = (day: string, id: string): boolean => docStore.get(`check:${day}:${id}`, false);
@@ -37,86 +38,27 @@ export function HoyPage(): JSX.Element {
   const nowMin = minuteOfDay(now);
   const next = nextTimed(items, nowMin, settings.wake);
   const { done, total } = todayProgress(items);
-  const marks = useMemo(
-    () => items.filter((i) => i.t !== null).map((i) => ({ t: i.t as number, tag: i.habit.tag })),
-    [items],
-  );
-  const untilNext =
-    next?.t != null ? wrap(next.t - toMinutes(settings.wake)) - wrap(nowMin - toMinutes(settings.wake)) : 0;
   const existingIds = useMemo(() => new Set(config.list.map((h) => h.id)), [config]);
 
   return (
     <>
-      <div className="section-head">
-        <h1>Hoy</h1>
-        <p className="muted date-line">{longDate(now)}</p>
-      </div>
       <div className="grid-today">
-        <section className="panel" aria-labelledby="h-reloj">
-          <h2 id="h-reloj" className="sr-only">
-            Tu reloj de hoy
-          </h2>
-          <Dial wake={settings.wake} bed={settings.bed} sunset={settings.sunset} now={nowMin} marks={marks}>
+        <section className="panel clock-panel" aria-labelledby="h-reloj">
+          <h1 id="h-reloj" className="sr-only">
+            Hoy
+          </h1>
+          <Dial
+            wake={settings.wake}
+            bed={settings.bed}
+            sunrise={settings.sunrise}
+            sunset={settings.sunset}
+            now={nowMin}
+          >
             <div className="now">{formatTime(nowMin)}</div>
-            <div className="next">
-              {next ? (
-                <>
-                  <b>{next.habit.what}</b>
-                  {untilNext > 0 ? `en ${formatDuration(untilNext)}` : 'ahora'}
-                </>
-              ) : total > 0 && done === total ? (
-                <>
-                  <b>Todo hecho</b>buen descanso
-                </>
-              ) : (
-                <>
-                  <b>
-                    {done} de {total}
-                  </b>
-                  hábitos hechos hoy
-                </>
-              )}
-            </div>
+            <div className="date">{longDate(now)}</div>
           </Dial>
           <DialLegend />
-          <details className="schedule">
-            <summary>
-              Tu horario
-              <span className="val">
-                {settings.wake}–{settings.bed}
-              </span>
-            </summary>
-            <div className="settings">
-              <label htmlFor="wake">
-                Despertar
-                <input
-                  type="time"
-                  id="wake"
-                  value={settings.wake}
-                  onChange={(e) => e.target.value && update({ wake: e.target.value })}
-                />
-              </label>
-              <label htmlFor="bed">
-                Dormir
-                <input
-                  type="time"
-                  id="bed"
-                  value={settings.bed}
-                  onChange={(e) => e.target.value && update({ bed: e.target.value })}
-                />
-              </label>
-              <label htmlFor="sunset">
-                Puesta de sol
-                <input
-                  type="time"
-                  id="sunset"
-                  value={settings.sunset}
-                  onChange={(e) => e.target.value && update({ sunset: e.target.value })}
-                />
-              </label>
-            </div>
-            <p className="note">Mantén el mismo horario ±30 min de 6 a 7 noches por semana.</p>
-          </details>
+          <SchedulePanel settings={settings} update={update} />
         </section>
 
         <section className="panel" aria-labelledby="h-plan">
@@ -127,11 +69,7 @@ export function HoyPage(): JSX.Element {
                 {done}/{total}
               </span>
             )}
-            <button
-              type="button"
-              className={`btn small-btn${editing ? '' : ' ghost'}`}
-              onClick={() => setEditing(!editing)}
-            >
+            <button type="button" className="text-btn" onClick={() => setEditing(!editing)}>
               {editing ? 'Listo' : 'Editar'}
             </button>
             {!editing && (

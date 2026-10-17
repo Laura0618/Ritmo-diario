@@ -1,4 +1,4 @@
-// Worker de Ritmo Diario: sirve la PWA (binding ASSETS) y la API en /api/*.
+// Worker de Protocolos: sirve la PWA (binding ASSETS) y la API en /api/*.
 // Basado en el de Pedalea a Polonia (mismo enfoque de sesion, OAuth y endurecimiento).
 //
 //  * Todas las respuestas /api/* llevan `Cache-Control: no-store`.
