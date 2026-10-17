@@ -49,6 +49,12 @@ export function Dial({ wake, bed, sunrise, sunset, now, children }: DialProps): 
         role="img"
         aria-label={`Reloj de 24 horas. Amanece a las ${sunrise} y anochece a las ${sunset}; duermes de ${bed} a ${wake}.`}
       >
+        <defs>
+          <linearGradient id="dial-sun" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="var(--yellow)" />
+            <stop offset="1" stopColor="var(--orange)" />
+          </linearGradient>
+        </defs>
         <circle cx={C} cy={C} r={RING_R} fill="none" stroke="var(--surface-2)" strokeWidth={RING_W} />
         {Array.from({ length: 24 }, (_, h) => {
           const [x1, y1] = polar(h * 60, 139);
@@ -114,20 +120,22 @@ export function Dial({ wake, bed, sunrise, sunset, now, children }: DialProps): 
   );
 }
 
-/** Sol pequeño: marca la salida del sol. */
+/** Amanecer: medio sol sobre el horizonte, sobre una pastilla del color de la tarjeta. */
 function SunGlyph({ x, y }: { x: number; y: number }): JSX.Element {
   return (
     <g transform={`translate(${x.toFixed(2)} ${y.toFixed(2)})`} aria-hidden="true">
-      <circle r={2.6} fill="var(--orange)" />
-      {Array.from({ length: 8 }, (_, i) => {
-        const a = (i * Math.PI) / 4;
+      <circle r={8.5} fill="var(--surface)" />
+      <path d="M-3.6 1.6 A3.6 3.6 0 0 1 3.6 1.6 Z" fill="url(#dial-sun)" />
+      <path d="M-5.6 1.6 H5.6" stroke="var(--orange)" strokeWidth={1.2} strokeLinecap="round" />
+      {[-90, -45, -135].map((deg) => {
+        const a = (deg * Math.PI) / 180;
         return (
           <line
-            key={i}
-            x1={Math.cos(a) * 4}
-            y1={Math.sin(a) * 4}
-            x2={Math.cos(a) * 5.6}
-            y2={Math.sin(a) * 5.6}
+            key={deg}
+            x1={Math.cos(a) * 5}
+            y1={1.6 + Math.sin(a) * 5}
+            x2={Math.cos(a) * 6.4}
+            y2={1.6 + Math.sin(a) * 6.4}
             stroke="var(--orange)"
             strokeWidth={1.1}
             strokeLinecap="round"
@@ -138,15 +146,17 @@ function SunGlyph({ x, y }: { x: number; y: number }): JSX.Element {
   );
 }
 
-/** Luna creciente pequeña: marca la puesta de sol. */
+/** Anochecer: luna creciente con una estrella, sobre una pastilla del color de la tarjeta. */
 function MoonGlyph({ x, y }: { x: number; y: number }): JSX.Element {
   return (
-    <path
-      transform={`translate(${x.toFixed(2)} ${y.toFixed(2)})`}
-      d="M1.6 -4.2 A4.5 4.5 0 1 0 1.6 4.2 A3.6 3.6 0 0 1 1.6 -4.2 Z"
-      fill="var(--ink-2)"
-      aria-hidden="true"
-    />
+    <g transform={`translate(${x.toFixed(2)} ${y.toFixed(2)})`} aria-hidden="true">
+      <circle r={8.5} fill="var(--surface)" />
+      <path d="M1.2 -4.4 A4.6 4.6 0 1 0 4.6 2.2 A3.6 3.6 0 0 1 1.2 -4.4 Z" fill="var(--blue)" />
+      <path
+        d="M4.6 -4.6 L5.1 -3.4 L6.3 -2.9 L5.1 -2.4 L4.6 -1.2 L4.1 -2.4 L2.9 -2.9 L4.1 -3.4 Z"
+        fill="var(--yellow)"
+      />
+    </g>
   );
 }
 
