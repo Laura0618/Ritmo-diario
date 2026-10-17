@@ -28,14 +28,17 @@ interface DialProps {
   children?: ReactNode;
 }
 
-/** Reloj de 24 h con la luz del día, el sueño, las ventanas de luz y la cafeína. */
+/** Reloj de 24 h: sueño, ventanas de luz, cafeína, ejercicio y la salida y puesta de sol. */
 export function Dial({ wake, bed, sunrise, sunset, now, children }: DialProps): JSX.Element {
   const W = toMinutes(wake);
   const B = toMinutes(bed);
   const SR = toMinutes(sunrise);
   const SS = toMinutes(sunset);
-  const [srx, sry] = polar(SR, RING_R + 11);
-  const [ssx, ssy] = polar(SS, RING_R + 11);
+  const [srx, sry] = polar(SR, 109);
+  const [ssx, ssy] = polar(SS, 109);
+  // Ventana de ejercicio: desde que te despiertas hasta las 13:00.
+  const EX_END = 13 * 60;
+  const showExercise = W < EX_END;
   const [hx, hy] = polar(now, 143);
   const [bx, by] = polar(now, 92);
 
@@ -44,7 +47,7 @@ export function Dial({ wake, bed, sunrise, sunset, now, children }: DialProps): 
       <svg
         viewBox="0 0 320 320"
         role="img"
-        aria-label={`Reloj de 24 horas. Sol de ${sunrise} a ${sunset}; duermes de ${bed} a ${wake}.`}
+        aria-label={`Reloj de 24 horas. Amanece a las ${sunrise} y anochece a las ${sunset}; duermes de ${bed} a ${wake}.`}
       >
         <circle cx={C} cy={C} r={RING_R} fill="none" stroke="var(--surface-2)" strokeWidth={RING_W} />
         {Array.from({ length: 24 }, (_, h) => {
@@ -79,16 +82,16 @@ export function Dial({ wake, bed, sunrise, sunset, now, children }: DialProps): 
             </text>
           );
         })}
-        <path
-          d={arc(SR, SS, RING_R + 11)}
-          fill="none"
-          stroke="var(--yellow)"
-          strokeWidth={2}
-          strokeLinecap="round"
-          opacity={0.9}
-        />
-        <circle cx={srx} cy={sry} r={3} fill="var(--yellow)" />
-        <circle cx={ssx} cy={ssy} r={3} fill="var(--orange)" />
+        {showExercise && (
+          <path
+            d={arc(W, EX_END, RING_R + 11)}
+            fill="none"
+            stroke="var(--c-mente)"
+            strokeWidth={2}
+            strokeLinecap="round"
+            opacity={0.85}
+          />
+        )}
         <path d={arc(B, W, RING_R)} fill="none" stroke="var(--blue)" strokeWidth={RING_W} />
         <path d={arc(B - 60, B, RING_R)} fill="none" stroke="var(--red)" strokeWidth={RING_W} />
         <path d={arc(W, W + 60, RING_R)} fill="none" stroke="var(--orange)" strokeWidth={RING_W} />
@@ -101,6 +104,8 @@ export function Dial({ wake, bed, sunrise, sunset, now, children }: DialProps): 
           strokeLinecap="round"
           opacity={0.75}
         />
+        <SunGlyph x={srx} y={sry} />
+        <MoonGlyph x={ssx} y={ssy} />
         <line x1={bx} y1={by} x2={hx} y2={hy} stroke="var(--ink)" strokeWidth={1.5} strokeLinecap="round" />
         <circle cx={hx} cy={hy} r={3.5} fill="var(--ink)" />
       </svg>
@@ -109,28 +114,56 @@ export function Dial({ wake, bed, sunrise, sunset, now, children }: DialProps): 
   );
 }
 
+/** Sol pequeño: marca la salida del sol. */
+function SunGlyph({ x, y }: { x: number; y: number }): JSX.Element {
+  return (
+    <g transform={`translate(${x.toFixed(2)} ${y.toFixed(2)})`} aria-hidden="true">
+      <circle r={2.6} fill="var(--orange)" />
+      {Array.from({ length: 8 }, (_, i) => {
+        const a = (i * Math.PI) / 4;
+        return (
+          <line
+            key={i}
+            x1={Math.cos(a) * 4}
+            y1={Math.sin(a) * 4}
+            x2={Math.cos(a) * 5.6}
+            y2={Math.sin(a) * 5.6}
+            stroke="var(--orange)"
+            strokeWidth={1.1}
+            strokeLinecap="round"
+          />
+        );
+      })}
+    </g>
+  );
+}
+
+/** Luna creciente pequeña: marca la puesta de sol. */
+function MoonGlyph({ x, y }: { x: number; y: number }): JSX.Element {
+  return (
+    <path
+      transform={`translate(${x.toFixed(2)} ${y.toFixed(2)})`}
+      d="M1.6 -4.2 A4.5 4.5 0 1 0 1.6 4.2 A3.6 3.6 0 0 1 1.6 -4.2 Z"
+      fill="var(--ink-2)"
+      aria-hidden="true"
+    />
+  );
+}
+
 export function DialLegend(): JSX.Element {
   return (
     <div className="legend">
-      <span>
-        <i style={{ background: 'var(--yellow)' }} />
-        Luz del día
-      </span>
       <span>
         <i style={{ background: 'var(--blue)' }} />
         Sueño
       </span>
       <span>
-        <i style={{ background: 'var(--orange)' }} />
-        Luz al despertar
-      </span>
-      <span>
-        <i style={{ background: 'var(--red)' }} />
-        Luz tenue
-      </span>
-      <span>
         <i className="legend-line" />
         Cafeína
+      </span>
+      <span>
+        <i className="legend-line exercise" />
+        Ejercicio
       </span>
     </div>
   );

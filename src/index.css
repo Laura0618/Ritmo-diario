@@ -23,15 +23,15 @@
   --body:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
   --display:-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, sans-serif;
   --mono:var(--body);
-  --fs-xs:.8125rem; --fs-sm:.9375rem; --fs-base:1.0625rem; --fs-md:1.1875rem; --fs-lg:1.375rem; --fs-xl:1.75rem;
-  --fs-display:2.125rem;
+  --fs-xs:.75rem; --fs-sm:.8125rem; --fs-base:.9375rem; --fs-md:1.0625rem; --fs-lg:1.25rem; --fs-xl:1.5rem;
+  --fs-display:1.875rem;
   /* Espacio, radios, elevación, movimiento */
   --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px;
   --r-sm:10px; --r-md:14px; --r-lg:22px; --r-pill:999px;
   --shadow-1:none;
   --shadow-2:0 8px 30px rgba(29,29,31,.08);
   --ease:cubic-bezier(.25,.8,.25,1); --dur:.25s;
-  --control-h:44px;
+  --control-h:40px;
   --tabbar-h:56px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
@@ -132,14 +132,14 @@ button{-webkit-user-select:none;user-select:none}
 .note{font-size:var(--fs-xs);color:var(--muted);line-height:1.5}
 
 /* ---------- Controles ---------- */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);min-height:50px;border:0;border-radius:var(--r-md);padding:0 var(--s5);font-weight:600;font-size:var(--fs-base);letter-spacing:-.02em;cursor:pointer;background:var(--ink);color:var(--bg);transition:opacity var(--dur) var(--ease),transform .12s var(--ease);text-decoration:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);min-height:38px;border:0;border-radius:var(--r-sm);padding:0 var(--s4);font-weight:600;font-size:var(--fs-sm);letter-spacing:-.02em;cursor:pointer;background:var(--ink);color:var(--bg);transition:opacity var(--dur) var(--ease),transform .12s var(--ease);text-decoration:none}
 .btn:hover:not(:disabled){opacity:.85}
 .btn:active:not(:disabled){transform:scale(.98);opacity:.7}
 .btn.ghost{background:var(--surface-2);color:var(--ink)}
 .btn.ghost:hover:not(:disabled){opacity:1;background:var(--surface-3)}
 .btn:disabled{opacity:.4;cursor:default}
 .btn-row{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center}
-.seg{display:inline-flex;min-height:36px;border-radius:var(--r-sm);padding:2px;gap:2px;background:var(--surface-2)}
+.seg{display:inline-flex;min-height:32px;border-radius:var(--r-sm);padding:2px;gap:2px;background:var(--surface-2)}
 .seg button:disabled{cursor:default}
 .seg button{border:0;background:transparent;padding:0 var(--s3);min-width:44px;border-radius:8px;font-size:var(--fs-xs);font-weight:500;font-variant-numeric:tabular-nums;cursor:pointer;color:var(--ink-2);transition:background var(--dur) var(--ease)}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.1)}
@@ -169,12 +169,13 @@ button{-webkit-user-select:none;user-select:none}
 .dial-wrap{position:relative;width:100%;max-width:320px;margin:0 auto;aspect-ratio:1}
 .dial-wrap svg{width:100%;height:100%;display:block}
 .dial-center{position:absolute;inset:26%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:var(--s1)}
-.dial-center .now{font-size:2.75rem;font-weight:200;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+.dial-center .now{font-size:2.5rem;font-weight:200;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
 .dial-center .date{font-size:var(--fs-xs);color:var(--muted);margin-top:2px}
 .dial-center .date::first-letter{text-transform:uppercase}
 .legend{display:flex;flex-wrap:wrap;gap:var(--s1) var(--s4);justify-content:center;margin-top:var(--s4);font-size:var(--fs-xs);color:var(--muted)}
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .legend .legend-line{width:12px;height:3px;border-radius:2px;background:var(--c-luz);opacity:.75}
+.legend .legend-line.exercise{background:var(--c-mente);opacity:.85}
 .legend i{width:7px;height:7px;border-radius:50%;display:inline-block}
 .settings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s2);margin-top:var(--s3)}
 .schedule{margin-top:var(--s5);border-top:.5px solid var(--line);padding-top:var(--s3)}
@@ -303,8 +304,8 @@ details.p ul{margin:var(--s3) 0 2px 32px;padding-left:18px;font-size:var(--fs-sm
 .row-actions{display:flex;gap:var(--s1)}
 .habit-edit{margin:var(--s2) 0 0 40px;display:flex;flex-direction:column;gap:var(--s2)}
 .habit-edit .btn-row{gap:var(--s4)}
-.btn.small-btn{min-height:34px;padding:0 var(--s3);font-size:var(--fs-sm);border-radius:var(--r-sm);white-space:nowrap}
-.text-btn{border:0;background:none;padding:0 2px;min-height:var(--control-h);color:var(--ink);font-size:var(--fs-base);font-weight:600;letter-spacing:-.02em;cursor:pointer}
+.btn.small-btn{min-height:30px;padding:0 var(--s3);font-size:var(--fs-xs);border-radius:8px;white-space:nowrap}
+.text-btn{border:0;background:none;padding:0 2px;min-height:36px;color:var(--ink);font-size:var(--fs-sm);font-weight:600;letter-spacing:-.02em;cursor:pointer}
 .text-btn:hover{opacity:.7}
 .text-btn:active{opacity:.5}
 .btn.danger{background:var(--red);color:#fff}
@@ -371,13 +372,13 @@ a.btn{text-decoration:none}
 .plan-settings[open] summary{margin-bottom:var(--s2)}
 
 /* ---------- Historial ---------- */
-.plan-foot{margin-top:var(--s3);text-align:center}
+.plan-foot{margin-top:var(--s3);text-align:center;font-size:.6875rem}
 .hist-grid{display:grid;gap:var(--s4);align-items:start}
 @media (min-width:900px){.hist-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
 .hist-week{display:flex;flex-direction:column;gap:var(--s4)}
 .hist-week-head{display:flex;align-items:center;justify-content:space-between;gap:var(--s3)}
 .hist-week-title{text-align:center;display:flex;flex-direction:column;gap:2px}
-.hist-pct{font-weight:200;font-size:2.75rem;letter-spacing:-.04em;line-height:1.05;color:var(--ink);font-variant-numeric:tabular-nums}
+.hist-pct{font-weight:200;font-size:2.25rem;letter-spacing:-.04em;line-height:1.05;color:var(--ink);font-variant-numeric:tabular-nums}
 .hist-pct .muted{font-size:var(--fs-sm);font-weight:400;letter-spacing:0}
 .hist-delta{font-size:var(--fs-xs);color:var(--muted)}
 .hist-delta.up{color:var(--blue)}

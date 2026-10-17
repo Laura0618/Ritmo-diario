@@ -107,7 +107,7 @@ export function HoyPage(): JSX.Element {
             <span aria-hidden="true">+</span> Añadir hábito
           </button>
           {!editing && (
-            <p className="plan-foot small muted">
+            <p className="plan-foot muted">
               Las casillas se reinician a medianoche. <Link to="/historial">Ver tu historial</Link>
             </p>
           )}
