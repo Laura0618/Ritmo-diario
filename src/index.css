@@ -47,6 +47,7 @@
   --ok:#4CC98A;
   --shadow-2:0 0 0 1px var(--line-strong);
   color-scheme:dark}}
+:root[data-theme="light"]{color-scheme:light}
 :root[data-theme="dark"]{
   --bg:#000000; --surface:#141418; --surface-2:#24242C; --surface-3:#32323C; --raised:#3A3A44;
   --ink:#F2F2F5; --ink-2:#D0D0D8; --muted:#8E8E99; --line:#24242C; --line-strong:#3E3E48;
@@ -264,6 +265,8 @@ details.p ul{margin:var(--s3) 0 2px 32px;padding-left:18px;font-size:var(--fs-sm
 @media (prefers-reduced-motion: reduce){*{transition-duration:.01ms!important;animation:none!important}}
 
 /* ---------- Cuenta y ajustes ---------- */
+.setting-row{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);flex-wrap:wrap}
+.setting-row h2{font-size:var(--fs-md)}
 .settings-panel{display:flex;flex-direction:column;gap:var(--s4);max-width:640px}
 .account{display:flex;align-items:center;gap:var(--s3)}
 .avatar{width:48px;height:48px;border-radius:50%;object-fit:cover;flex:0 0 auto;display:grid;place-items:center;background:var(--blue-soft);color:var(--blue);font-weight:600;font-size:1.2rem}

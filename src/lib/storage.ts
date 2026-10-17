@@ -23,4 +23,5 @@ export function writeJSON(key: string, value: unknown): void {
 
 export const KEYS = {
   libCategory: 'libCategory',
+  theme: 'theme',
 } as const;

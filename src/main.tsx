@@ -6,8 +6,10 @@ import App from './App';
 import { SettingsProvider } from './store/SettingsProvider';
 import { SyncProvider } from './store/SyncProvider';
 import './index.css';
+import { applyTheme, readTheme } from './lib/theme';
 
 registerSW({ immediate: true });
+applyTheme(readTheme());
 
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('No se encontró el elemento #root.');

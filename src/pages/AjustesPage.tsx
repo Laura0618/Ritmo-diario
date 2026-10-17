@@ -1,17 +1,29 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSync } from '../store/SyncProvider';
+import { readTheme, saveTheme, type Theme } from '../lib/theme';
 
 function formatSync(d: Date | null): string {
   if (!d) return 'todavía no';
   return d.toLocaleString('es-ES', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' });
 }
 
+const THEMES: readonly (readonly [Theme, string])[] = [
+  ['system', 'Sistema'],
+  ['light', 'Claro'],
+  ['dark', 'Oscuro'],
+];
+
 export function AjustesPage(): JSX.Element {
   const { authStatus, user, oauthConfigured, syncStatus, lastSyncAt, signIn, signOut, syncNow } = useSync();
   const location = useLocation();
   const navigate = useNavigate();
   const [notice, setNotice] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null);
+  const [theme, setTheme] = useState<Theme>(readTheme);
+  const chooseTheme = (t: Theme): void => {
+    setTheme(t);
+    saveTheme(t);
+  };
 
   // Resultado del inicio de sesion (?login=ok | error).
   useEffect(() => {
@@ -38,9 +50,25 @@ export function AjustesPage(): JSX.Element {
         </p>
       )}
 
-      <section className="panel settings-panel" aria-labelledby="h-habitos">
+      <section className="panel settings-panel" aria-labelledby="h-apariencia">
+        <div className="setting-row">
+          <h2 id="h-apariencia">Apariencia</h2>
+          <div className="seg" role="group" aria-labelledby="h-apariencia">
+            {THEMES.map(([value, label]) => (
+              <button key={value} type="button" aria-pressed={theme === value} onClick={() => chooseTheme(value)}>
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <p className="note">«Sistema» sigue el modo claro u oscuro de tu iPhone. Se guarda en este dispositivo.</p>
+      </section>
+
+      <section className="panel settings-panel spaced" aria-labelledby="h-habitos">
         <h2 id="h-habitos">Hábitos</h2>
-        <p className="lede">Ordena tus hábitos, cambia su frecuencia u hora, quítalos o añade nuevos del libro o tuyos.</p>
+        <p className="lede">
+          Ordena tus hábitos, cambia su frecuencia u hora, quítalos o añade nuevos del libro o tuyos.
+        </p>
         <div className="btn-row">
           <Link to="/?editar=1" className="btn ghost">
             Editar hábitos
