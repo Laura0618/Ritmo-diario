@@ -61,21 +61,32 @@ export function BibliotecaPage(): JSX.Element {
         <p className="empty">No hay protocolos con «{query}». Prueba con otra palabra.</p>
       ) : (
         <div className="lib">
-          {results.map(({ cat, p, n }) => (
-            <details key={`${cat.id}-${n}`} className={`p cat-${cat.id}`}>
-              <summary>
-                <span className="code">
-                  {cat.name.split(' ')[0]?.toUpperCase()} {String(n).padStart(2, '0')}
-                </span>
-                <span className="ti">{p.title}</span>
-              </summary>
-              <ul>
-                {p.points.map((pt) => (
-                  <li key={pt}>{pt}</li>
-                ))}
-              </ul>
-            </details>
-          ))}
+          {LIBRARY.map((cat) => {
+            const items = results.filter((r) => r.cat.id === cat.id);
+            if (items.length === 0) return null;
+            return (
+              <section key={cat.id} className={`lib-group cat-${cat.id}`} aria-labelledby={`lib-${cat.id}`}>
+                <h2 id={`lib-${cat.id}`} className="lib-group-title">
+                  {cat.name}
+                </h2>
+                <div className="list-group">
+                  {items.map(({ p, n }) => (
+                    <details key={n} className="p">
+                      <summary>
+                        <span className="code">{n}</span>
+                        <span className="ti">{p.title}</span>
+                      </summary>
+                      <ul>
+                        {p.points.map((pt) => (
+                          <li key={pt}>{pt}</li>
+                        ))}
+                      </ul>
+                    </details>
+                  ))}
+                </div>
+              </section>
+            );
+          })}
         </div>
       )}
     </>

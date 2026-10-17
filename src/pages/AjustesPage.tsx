@@ -123,6 +123,20 @@ export function AjustesPage(): JSX.Element {
           </>
         )}
       </section>
+
+      <section className="settings-panel spaced about" aria-labelledby="h-about">
+        <h2 id="h-about" className="sr-only">
+          Acerca de
+        </h2>
+        <p>
+          Resumen propio de las ideas del libro <i>Protocols: An Operating Manual for the Human Body</i> (Andrew D.
+          Huberman, Simon &amp; Schuster, 2026). Sin afiliación con el autor ni con la editorial.
+        </p>
+        <p>
+          No es consejo médico. Consulta a un profesional antes de tomar suplementos, empezar con el frío o cambiar tu
+          entrenamiento si tienes alguna condición de salud.
+        </p>
+      </section>
     </>
   );
 }

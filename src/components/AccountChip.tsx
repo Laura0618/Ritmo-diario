@@ -1,34 +1,31 @@
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useSync, type SyncStatus } from '../store/SyncProvider';
+import { IconSettings } from './Icons';
 
 const LABEL: Record<SyncStatus, string> = {
-  idle: 'Sincronizado',
-  synced: 'Sincronizado',
-  saving: 'Guardando…',
-  pending: 'Pendiente',
-  offline: 'Sin conexión',
-  error: 'Error al sincronizar',
+  idle: 'sincronizado',
+  synced: 'sincronizado',
+  saving: 'guardando',
+  pending: 'cambios pendientes',
+  offline: 'sin conexión',
+  error: 'error al sincronizar',
 };
 
-/** Estado de la cuenta en la cabecera. Lleva a Ajustes. */
-export function AccountChip(): JSX.Element | null {
-  const { authStatus, syncStatus, oauthConfigured, user } = useSync();
-  if (authStatus === 'loading') return null;
-
-  if (authStatus === 'signed_out') {
-    if (!oauthConfigured) return null;
-    return (
-      <Link to="/ajustes" className="account-chip" data-tone="neutral">
-        Iniciar sesión
-      </Link>
-    );
-  }
-
-  const tone = syncStatus === 'error' || syncStatus === 'offline' ? 'warn' : syncStatus === 'synced' || syncStatus === 'idle' ? 'ok' : 'busy';
+/** Acceso a Ajustes en la cabecera; un punto indica el estado de la sincronización. */
+export function AccountChip(): JSX.Element {
+  const { authStatus, syncStatus } = useSync();
+  const signedIn = authStatus === 'signed_in';
+  const tone =
+    syncStatus === 'error' || syncStatus === 'offline' ? 'warn' : syncStatus === 'synced' || syncStatus === 'idle' ? 'ok' : 'busy';
   return (
-    <Link to="/ajustes" className="account-chip" data-tone={tone} title={user?.email ?? undefined} aria-live="polite">
-      <span className="dot" aria-hidden="true" />
-      {LABEL[syncStatus]}
-    </Link>
+    <NavLink
+      to="/ajustes"
+      className="settings-link"
+      data-tone={signedIn ? tone : undefined}
+      aria-label={signedIn ? `Ajustes y cuenta: ${LABEL[syncStatus]}` : 'Ajustes y cuenta'}
+    >
+      <IconSettings />
+      {signedIn && <span className="dot" aria-hidden="true" />}
+    </NavLink>
   );
 }

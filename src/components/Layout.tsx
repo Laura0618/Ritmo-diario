@@ -1,6 +1,4 @@
-import { NavLink, Outlet } from 'react-router-dom';
-import { useNow } from '../hooks/useNow';
-import { longDate } from '../lib/time';
+import { Link, NavLink, Outlet } from 'react-router-dom';
 import { AccountChip } from './AccountChip';
 import { IconLibrary, IconToday, IconTools, IconWeek } from './Icons';
 
@@ -12,8 +10,6 @@ const NAV_ITEMS = [
 ] as const;
 
 export function Layout(): JSX.Element {
-  const now = useNow();
-
   return (
     <div className="shell">
       <a href="#contenido" className="skip-link">
@@ -21,13 +17,10 @@ export function Layout(): JSX.Element {
       </a>
 
       <header className="app-header">
-        <div className="brand">
+        <Link to="/" className="brand" aria-label="Ritmo Diario, ir a Hoy">
           <span className="sun" aria-hidden="true" />
-          <div className="brand-text">
-            <p className="brand-name">Ritmo Diario</p>
-            <p className="brand-date">{longDate(now)}</p>
-          </div>
-        </div>
+          <span className="brand-name">Ritmo Diario</span>
+        </Link>
         <div className="header-end">
           <nav aria-label="Navegación principal" className="top-nav">
             {NAV_ITEMS.map(({ to, label }) => (
@@ -42,17 +35,6 @@ export function Layout(): JSX.Element {
 
       <main id="contenido" className="app-main">
         <Outlet />
-        <footer className="app-footer">
-          <p>
-            Resumen propio de las ideas del libro <i>Protocols: An Operating Manual for the Human Body</i> (Andrew D.
-            Huberman, Simon &amp; Schuster, 2026). Sin afiliación con el autor ni con la editorial.
-          </p>
-          <p>
-            No es consejo médico. Consulta a un profesional antes de tomar suplementos, empezar con el frío o cambiar tu
-            entrenamiento si tienes alguna condición de salud.
-          </p>
-          <p>Sin cuenta, tus datos se guardan solo en este dispositivo. Con cuenta, se sincronizan entre tus dispositivos.</p>
-        </footer>
       </main>
 
       <nav aria-label="Navegación principal" className="bottom-nav">

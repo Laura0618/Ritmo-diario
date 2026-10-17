@@ -5,7 +5,7 @@ import type { Tag } from '../types';
 
 const C = 160; // centro del viewBox 320x320
 const RING_R = 122;
-const RING_W = 18;
+const RING_W = 10;
 
 function polar(minutes: number, r: number): [number, number] {
   const a = (minutes / 1440) * 2 * Math.PI;
@@ -43,11 +43,9 @@ export function Dial({ wake, bed, sunset, now, marks = [], children }: DialProps
     <div className="dial-wrap">
       <svg viewBox="0 0 320 320" role="img" aria-label="Reloj de 24 horas con tus ventanas de sueño, luz y cafeína">
         <circle cx={C} cy={C} r={RING_R} fill="none" stroke="var(--surface-2)" strokeWidth={RING_W} />
-        <circle cx={C} cy={C} r={RING_R + RING_W / 2} fill="none" stroke="var(--line)" strokeWidth={1} />
-        <circle cx={C} cy={C} r={RING_R - RING_W / 2} fill="none" stroke="var(--line)" strokeWidth={1} />
         {Array.from({ length: 24 }, (_, h) => {
-          const [x1, y1] = polar(h * 60, 136);
-          const [x2, y2] = polar(h * 60, h % 6 === 0 ? 144 : 140);
+          const [x1, y1] = polar(h * 60, 134);
+          const [x2, y2] = polar(h * 60, h % 6 === 0 ? 141 : 137);
           return (
             <line
               key={h}
@@ -56,20 +54,21 @@ export function Dial({ wake, bed, sunset, now, marks = [], children }: DialProps
               x2={x2}
               y2={y2}
               stroke="var(--muted)"
-              strokeWidth={h % 6 === 0 ? 1.6 : 0.8}
+              strokeWidth={h % 6 === 0 ? 1.2 : 0.6}
+              opacity={h % 6 === 0 ? 1 : 0.6}
             />
           );
         })}
         {[0, 6, 12, 18].map((h) => {
-          const [x, y] = polar(h * 60, 153);
+          const [x, y] = polar(h * 60, 151);
           return (
             <text
               key={h}
               x={x}
               y={y + 3.5}
               textAnchor="middle"
-              fontFamily="JetBrains Mono, monospace"
-              fontSize={10}
+              fontFamily="-apple-system, BlinkMacSystemFont, system-ui, sans-serif"
+              fontSize={9.5}
               fill="var(--muted)"
             >
               {String(h).padStart(2, '0')}
@@ -80,13 +79,13 @@ export function Dial({ wake, bed, sunset, now, marks = [], children }: DialProps
         <path d={arc(B - 60, B, RING_R)} fill="none" stroke="var(--red)" strokeWidth={RING_W} />
         <path d={arc(W, W + 60, RING_R)} fill="none" stroke="var(--orange)" strokeWidth={RING_W} />
         <path d={arc(SS - 60, SS, RING_R)} fill="none" stroke="var(--orange)" strokeWidth={RING_W} opacity={0.7} />
-        <path d={arc(W + 30, B - 600, 100)} fill="none" stroke="var(--yellow)" strokeWidth={4} strokeLinecap="round" />
+        <path d={arc(W + 30, B - 600, 100)} fill="none" stroke="var(--yellow)" strokeWidth={3} strokeLinecap="round" />
         {marks.map((m, i) => {
-          const [mx, my] = polar(m.t, 108);
+          const [mx, my] = polar(m.t, 110);
           return <circle key={i} cx={mx} cy={my} r={3.5} fill={TAG_COLOR[m.tag]} stroke="var(--surface)" strokeWidth={1.5} />;
         })}
-        <line x1={bx} y1={by} x2={hx} y2={hy} stroke="var(--ink)" strokeWidth={2.5} strokeLinecap="round" />
-        <circle cx={hx} cy={hy} r={4} fill="var(--ink)" />
+        <line x1={bx} y1={by} x2={hx} y2={hy} stroke="var(--ink)" strokeWidth={1.5} strokeLinecap="round" />
+        <circle cx={hx} cy={hy} r={3.5} fill="var(--ink)" />
       </svg>
       <div className="dial-center">{children}</div>
     </div>
