@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Dial, DialLegend } from '../components/Dial';
 import { AddHabitSheet } from '../components/habits/AddHabitSheet';
 import { HabitList } from '../components/habits/HabitList';
@@ -137,6 +137,11 @@ export function HoyPage(): JSX.Element {
         <button type="button" className="add-habit" onClick={() => setAdding(true)}>
           <span aria-hidden="true">+</span> Añadir hábito
         </button>
+        {!editing && (
+          <p className="plan-foot small muted">
+            Las casillas se reinician a medianoche. <Link to="/historial">Ver tu historial</Link>
+          </p>
+        )}
       </section>
 
       {adding && (

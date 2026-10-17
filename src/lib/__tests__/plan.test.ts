@@ -1,4 +1,4 @@
-import { maxHeartRate, planIndexFor, waterForSession, waterPerInterval, zoneBpm } from '../plan';
+import { WEEK, planIndexFor, waterForSession, waterPerInterval } from '../plan';
 
 const monday = new Date(2026, 9, 12, 10, 0); // lunes 12/10/2026
 
@@ -9,15 +9,17 @@ describe('plan semanal', () => {
     expect(planIndexFor(new Date(2026, 9, 11), 1)).toBe(6); // domingo
   });
 
-  it('calcula la FC máxima con la fórmula por sexo', () => {
-    expect(maxHeartRate(35, 'f')).toBeCloseTo(175.2);
-    expect(maxHeartRate(35, 'm')).toBeCloseTo(183.5);
-    expect(zoneBpm(175.2, [0.6, 0.7])).toEqual([105, 123]);
+  it('cada día tiene su duración y el descanso no tiene sesión', () => {
+    expect(WEEK).toHaveLength(7);
+    expect(WEEK.find((d) => d.kind === 'descanso')?.minutes).toBe(0);
+    expect(WEEK.every((d) => d.kind === 'descanso' || d.minutes > 0)).toBe(true);
   });
 
-  it('calcula el agua con la fórmula de Galpin', () => {
+  it('calcula el agua con la fórmula de Galpin según la duración del día', () => {
     expect(waterPerInterval(65)).toBe(140);
     expect(waterForSession(65, 60)).toBe(500);
+    expect(waterForSession(65, 25)).toBeLessThan(waterForSession(65, 60));
+    expect(waterForSession(65, 0)).toBe(0);
     expect(waterPerInterval(0)).toBe(0);
   });
 });

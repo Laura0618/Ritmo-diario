@@ -45,6 +45,9 @@ export function AjustesPage(): JSX.Element {
           <Link to="/?editar=1" className="btn ghost">
             Editar hábitos
           </Link>
+          <Link to="/historial" className="btn ghost">
+            Ver historial
+          </Link>
         </div>
       </section>
 

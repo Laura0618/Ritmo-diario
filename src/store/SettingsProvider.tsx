@@ -12,12 +12,11 @@ const SettingsContext = createContext<SettingsContextValue | null>(null);
 const EMPTY: Partial<Settings> = {};
 
 function normalize(stored: Partial<Settings>): Settings {
-  const merged: Settings = { ...DEFAULT_SETTINGS, ...stored };
+  const { wake, bed, sunset, day1, kg } = { ...DEFAULT_SETTINGS, ...stored };
+  const merged: Settings = { wake, bed, sunset, day1, kg };
   // La primera version guardaba algunos numeros como texto.
   merged.day1 = Number(merged.day1);
-  merged.age = Number(merged.age);
   merged.kg = Number(merged.kg);
-  merged.mins = Number(merged.mins);
   return merged;
 }
 

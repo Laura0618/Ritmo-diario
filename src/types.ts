@@ -1,8 +1,6 @@
 /** Categoria visual de cada tarea del plan diario. */
 export type Tag = 'sueno' | 'luz' | 'estres' | 'cuerpo' | 'mente';
 
-export type Sex = 'f' | 'm';
-
 export interface Settings {
   /** Hora de despertar, "HH:MM". */
   wake: string;
@@ -12,11 +10,8 @@ export interface Settings {
   sunset: string;
   /** Dia de la semana (0 = domingo) en el que empieza el plan de ejercicio. */
   day1: number;
-  age: number;
-  sex: Sex;
+  /** Peso en kg, para el agua durante el ejercicio. */
   kg: number;
-  /** Duracion de referencia del entrenamiento, para el calculo de agua. */
-  mins: number;
 }
 
 export type WorkoutKind = 'cardio' | 'fuerza' | 'descanso';
@@ -24,8 +19,10 @@ export type WorkoutKind = 'cardio' | 'fuerza' | 'descanso';
 export interface WeekDay {
   title: string;
   kind: WorkoutKind;
-  /** Rango de % de frecuencia cardiaca maxima, si aplica. */
-  zone?: readonly [number, number];
+  /** Duracion orientativa de la sesion, para el agua. 0 en descanso. */
+  minutes: number;
+  /** Como deberia sentirse el esfuerzo. */
+  effort: string;
   desc: string;
 }
 

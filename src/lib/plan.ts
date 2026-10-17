@@ -1,46 +1,65 @@
-import type { Settings, Sex, WeekDay } from '../types';
+import type { Settings, WeekDay } from '../types';
 
 export const DEFAULT_SETTINGS: Settings = {
   wake: '07:00',
   bed: '23:00',
   sunset: '19:30',
   day1: 1,
-  age: 35,
-  sex: 'f',
   kg: 65,
-  mins: 60,
 };
 
-/** Plan base de ejercicio: 3 sesiones de fuerza, 3 de cardio y 1 de descanso. */
+/**
+ * Plan base de ejercicio: 3 sesiones de cardio, 3 de fuerza y 1 de descanso.
+ * Es una guia: el orden se puede cambiar si un dia no encaja.
+ */
 export const WEEK: readonly WeekDay[] = [
   {
     title: 'Cardio largo',
     kind: 'cardio',
-    zone: [0.6, 0.7],
-    desc: '45–75 min continuos. Si empiezas de cero, 15–20 min y suma unos minutos cada semana.',
+    minutes: 60,
+    effort: 'Suave y continuo: puedes hablar o respirar solo por la nariz.',
+    desc: '45–75 min seguidos. Si empiezas de cero, 15–20 min y suma unos minutos cada semana.',
   },
   {
     title: 'Fuerza: piernas',
     kind: 'fuerza',
+    minutes: 50,
+    effort: 'Series cerca del fallo, con buena técnica.',
     desc: 'Cuádriceps, isquiotibiales y gemelos. Glúteos y lumbares trabajan de forma indirecta.',
   },
-  { title: 'Descanso', kind: 'descanso', desc: 'Camina 7.000–10.000 pasos. Movilidad suave si te apetece.' },
-  { title: 'Fuerza: torso', kind: 'fuerza', desc: 'Pecho, espalda, abdomen y core. Cuello opcional.' },
+  {
+    title: 'Descanso',
+    kind: 'descanso',
+    minutes: 0,
+    effort: 'Recuperar también es entrenar.',
+    desc: 'Camina 7.000–10.000 pasos. Movilidad suave si te apetece.',
+  },
+  {
+    title: 'Fuerza: torso',
+    kind: 'fuerza',
+    minutes: 50,
+    effort: 'Series cerca del fallo, con buena técnica.',
+    desc: 'Pecho, espalda, abdomen y core. Cuello opcional.',
+  },
   {
     title: 'Cardio medio',
     kind: 'cardio',
-    zone: [0.75, 0.85],
-    desc: '5 min de calentamiento y 25–30 min respirando fuerte pero sin ahogarte.',
+    minutes: 35,
+    effort: 'Respiras fuerte, pero sin ahogarte.',
+    desc: '5 min de calentamiento y 25–30 min a ritmo sostenido.',
   },
   {
     title: 'Cardio intenso',
     kind: 'cardio',
-    zone: [0.9, 0.95],
-    desc: 'Calienta 5–10 min. Luego 6–17 min de esfuerzo real: 30 s a tope y 60 s suave (6–12 rondas), 4×4 noruego o test de Cooper de 12 min.',
+    minutes: 25,
+    effort: 'Esfuerzo real en los intervalos; recupera bien entre ellos.',
+    desc: 'Calienta 5–10 min. Luego 6–17 min de trabajo: 30 s a tope y 60 s suave (6–12 rondas), 4×4 noruego o test de Cooper de 12 min.',
   },
   {
     title: 'Fuerza: hombros y brazos',
     kind: 'fuerza',
+    minutes: 45,
+    effort: 'Series cerca del fallo, con buena técnica.',
     desc: 'Hombros, bíceps, tríceps, abdomen y core. Antebrazos y cuello opcionales.',
   },
 ];
@@ -52,16 +71,6 @@ export function planIndexFor(date: Date, day1: number): number {
 
 export function planDayFor(date: Date, day1: number): WeekDay {
   return WEEK[planIndexFor(date, day1)] ?? WEEK[0]!;
-}
-
-/** FC maxima estimada (formulas por sexo que cita el libro). */
-export function maxHeartRate(age: number, sex: Sex): number {
-  const a = Number.isFinite(age) && age > 0 ? age : DEFAULT_SETTINGS.age;
-  return sex === 'm' ? 208 - 0.7 * a : 206 - 0.88 * a;
-}
-
-export function zoneBpm(maxHr: number, zone: readonly [number, number]): [number, number] {
-  return [Math.round(maxHr * zone[0]), Math.round(maxHr * zone[1])];
 }
 
 /**
