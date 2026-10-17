@@ -1,5 +1,5 @@
 /** Categoria visual de cada tarea del plan diario. */
-export type Tag = 'sueno' | 'luz' | 'estres' | 'cuerpo';
+export type Tag = 'sueno' | 'luz' | 'estres' | 'cuerpo' | 'mente';
 
 export type Sex = 'f' | 'm';
 
@@ -17,15 +17,6 @@ export interface Settings {
   kg: number;
   /** Duracion de referencia del entrenamiento, para el calculo de agua. */
   mins: number;
-}
-
-export interface DayItem {
-  id: string;
-  /** Minuto del dia (0-1439). */
-  t: number;
-  tag: Tag;
-  what: string;
-  how: string;
 }
 
 export type WorkoutKind = 'cardio' | 'fuerza' | 'descanso';
@@ -61,9 +52,6 @@ export interface LibCategory {
 /** Casillas marcadas de un dia, por id de tarea. */
 export type DayChecks = Record<string, boolean>;
 
-/** Nivel de un habito del libro, para la primera eleccion. */
-export type HabitTier = 'esencial' | 'recomendado' | 'opcional';
-
 /** Referencia de la hora de un habito. */
 export type Anchor = 'wake' | 'bed' | 'sunset' | 'fixed';
 
@@ -73,21 +61,23 @@ export interface HabitTime {
   offset: number;
 }
 
-export interface CustomHabit {
+/** Cada cuanto toca un habito. */
+export type HabitFreq = { per: 'day' } | { per: 'week'; times: number };
+
+export interface Habit {
+  /** Estable: `lib-<categoria>-<n>` para los del libro, `c-...` para los propios. Es la clave de las casillas. */
   id: string;
+  source: 'libro' | 'propio';
   what: string;
   how: string;
   tag: Tag;
-  time: HabitTime;
+  freq: HabitFreq;
+  /** Hora opcional; sin hora el habito se hace en cualquier momento del dia. */
+  time: HabitTime | null;
 }
 
-/** Documento sincronizado `habits`: que tareas sigue la persona y a que hora. */
+/** Documento sincronizado `habits` (v2): la lista de habitos en el orden de la persona. */
 export interface HabitConfig {
-  /** Ya hizo la primera eleccion. */
-  onboarded: boolean;
-  /** Habitos del libro activos (por id). Los que no estan, inactivos. */
-  enabled: Record<string, boolean>;
-  /** Horas cambiadas de habitos del libro (por id). */
-  times: Record<string, HabitTime>;
-  custom: CustomHabit[];
+  version: 2;
+  list: Habit[];
 }

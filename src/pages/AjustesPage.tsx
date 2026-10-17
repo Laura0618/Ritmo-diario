@@ -40,9 +40,9 @@ export function AjustesPage(): JSX.Element {
 
       <section className="panel settings-panel" aria-labelledby="h-habitos">
         <h2 id="h-habitos">Hábitos</h2>
-        <p className="lede">Elige qué tareas aparecen en tu plan de hoy, cambia sus horas y añade las tuyas.</p>
+        <p className="lede">Ordena tus hábitos, cambia su frecuencia u hora, quítalos o añade nuevos del libro o tuyos.</p>
         <div className="btn-row">
-          <Link to="/habitos" className="btn ghost">
+          <Link to="/?editar=1" className="btn ghost">
             Editar hábitos
           </Link>
         </div>

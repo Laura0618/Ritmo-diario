@@ -1,6 +1,4 @@
-import type { DayChecks, DayItem, HabitConfig, Settings, Sex, WeekDay } from '../types';
-import { BOOK_HABITS, bookTimeFor, isEnabled, resolveTime } from './habits';
-import { since, toMinutes } from './time';
+import type { Settings, Sex, WeekDay } from '../types';
 
 export const DEFAULT_SETTINGS: Settings = {
   wake: '07:00',
@@ -81,52 +79,4 @@ export function waterForSession(kg: number, minutes: number): number {
   if (!Number.isFinite(minutes) || minutes <= 0) return 0;
   const per = ((kg * 2.20462) / 30) * 29.5735;
   return Math.round((per * minutes) / 17.5 / 50) * 50;
-}
-
-/**
- * Tareas del dia: los habitos activos del libro y los propios, con su hora
- * resuelta segun los horarios de la persona, ordenadas desde la hora de despertar.
- * Sin configuracion se usan todos los habitos del libro.
- */
-export function buildDayItems(settings: Settings, date: Date, config?: HabitConfig): DayItem[] {
-  const W = toMinutes(settings.wake);
-  const today = planDayFor(date, settings.day1);
-  const zoneText = today.zone
-    ? `Al ${Math.round(today.zone[0] * 100)}–${Math.round(today.zone[1] * 100)} % de tu FC máxima. `
-    : '';
-
-  const book: DayItem[] = BOOK_HABITS.filter((h) => !config || isEnabled(h.id, config)).map((h) => {
-    const item: DayItem = {
-      id: h.id,
-      t: resolveTime(config ? bookTimeFor(h, config) : h.time, settings),
-      tag: h.tag,
-      what: h.what,
-      how: h.how,
-    };
-    if (h.id === 'mover') {
-      item.what = today.kind === 'descanso' ? 'Día de descanso activo' : `Entrenamiento: ${today.title}`;
-      item.how = today.kind === 'descanso' ? today.desc : `${today.title}. ${zoneText}Mejor en las primeras 2–3 h del día.`;
-    }
-    return item;
-  });
-
-  const custom: DayItem[] = (config?.custom ?? []).map((c) => ({
-    id: c.id,
-    t: resolveTime(c.time, settings),
-    tag: c.tag,
-    what: c.what,
-    how: c.how,
-  }));
-
-  return [...book, ...custom].sort((a, b) => since(a.t, W) - since(b.t, W) || a.what.localeCompare(b.what, 'es'));
-}
-
-/**
- * Siguiente tarea pendiente: la primera sin marcar cuya hora no haya pasado
- * hace mas de 15 min (contando desde que te despiertas).
- */
-export function nextItem(items: readonly DayItem[], checks: DayChecks, now: number, wake: string): DayItem | null {
-  const W = toMinutes(wake);
-  const nowRel = since(now, W);
-  return items.find((i) => !checks[i.id] && since(i.t, W) >= nowRel - 15) ?? null;
 }

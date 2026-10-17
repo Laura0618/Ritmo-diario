@@ -1,11 +1,10 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { HoyPage } from './pages/HoyPage';
 import { HerramientasPage } from './pages/HerramientasPage';
 import { SemanaPage } from './pages/SemanaPage';
 import { BibliotecaPage } from './pages/BibliotecaPage';
 import { AjustesPage } from './pages/AjustesPage';
-import { HabitosPage } from './pages/HabitosPage';
 import { NoEncontradoPage } from './pages/NoEncontradoPage';
 
 export default function App(): JSX.Element {
@@ -17,7 +16,7 @@ export default function App(): JSX.Element {
         <Route path="semana" element={<SemanaPage />} />
         <Route path="biblioteca" element={<BibliotecaPage />} />
         <Route path="ajustes" element={<AjustesPage />} />
-        <Route path="habitos" element={<HabitosPage />} />
+        <Route path="habitos" element={<Navigate to="/?editar=1" replace />} />
         <Route path="*" element={<NoEncontradoPage />} />
       </Route>
     </Routes>

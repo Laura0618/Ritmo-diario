@@ -1,13 +1,7 @@
 import type { ReactNode } from 'react';
 import { toMinutes } from '../lib/time';
+import { TAG_COLOR } from '../lib/tags';
 import type { Tag } from '../types';
-
-const TAG_COLOR: Record<Tag, string> = {
-  sueno: 'var(--blue)',
-  luz: 'var(--orange)',
-  estres: 'var(--red)',
-  cuerpo: 'var(--yellow)',
-};
 
 const C = 160; // centro del viewBox 320x320
 const RING_R = 122;
@@ -32,7 +26,7 @@ interface DialProps {
   bed: string;
   sunset: string;
   now: number;
-  /** Habitos propios: un punto en el borde interior del reloj. */
+  /** Habitos con hora: un punto en el borde interior del reloj. */
   marks?: readonly { t: number; tag: Tag }[];
   children?: ReactNode;
 }

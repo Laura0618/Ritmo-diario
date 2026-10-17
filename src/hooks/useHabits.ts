@@ -1,62 +1,36 @@
 import { useCallback, useMemo } from 'react';
-import type { CustomHabit, HabitConfig, HabitTime } from '../types';
+import type { Habit, HabitConfig } from '../types';
 import { docStore, useDoc } from '../lib/docs';
-import { HABITS_DOC, normalizeHabitConfig } from '../lib/habits';
+import { HABITS_DOC, moveHabit, normalizeHabitConfig } from '../lib/habits';
 
 export interface HabitsApi {
   config: HabitConfig;
-  save: (next: HabitConfig) => void;
-  setEnabled: (id: string, on: boolean) => void;
-  setTime: (id: string, time: HabitTime | null) => void;
-  upsertCustom: (habit: CustomHabit) => void;
-  removeCustom: (id: string) => void;
+  add: (habit: Habit) => void;
+  update: (habit: Habit) => void;
+  remove: (id: string) => void;
+  move: (from: number, to: number) => void;
 }
 
-/** Configuracion de habitos (documento sincronizado `habits`). */
+/** Lista de habitos de la persona, en su orden (documento sincronizado `habits`). */
 export function useHabits(): HabitsApi {
-  const raw = useDoc<Partial<HabitConfig> | null>(HABITS_DOC, null);
+  const raw = useDoc<unknown>(HABITS_DOC, null);
   const config = useMemo(() => normalizeHabitConfig(raw), [raw]);
 
-  const update = useCallback((fn: (c: HabitConfig) => HabitConfig) => {
-    const current = normalizeHabitConfig(docStore.get<Partial<HabitConfig> | null>(HABITS_DOC, null));
-    docStore.set(HABITS_DOC, fn(current));
+  const change = useCallback((fn: (list: Habit[]) => Habit[]) => {
+    const current = normalizeHabitConfig(docStore.get<unknown>(HABITS_DOC, null));
+    docStore.set(HABITS_DOC, { version: 2, list: fn(current.list) } satisfies HabitConfig);
   }, []);
 
-  const save = useCallback((next: HabitConfig) => docStore.set(HABITS_DOC, next), []);
-
-  const setEnabled = useCallback(
-    (id: string, on: boolean) => update((c) => ({ ...c, onboarded: true, enabled: { ...c.enabled, [id]: on } })),
-    [update],
+  const add = useCallback(
+    (habit: Habit) => change((list) => (list.some((h) => h.id === habit.id) ? list : [...list, habit])),
+    [change],
   );
-
-  const setTime = useCallback(
-    (id: string, time: HabitTime | null) =>
-      update((c) => {
-        const times = { ...c.times };
-        if (time) times[id] = time;
-        else delete times[id];
-        return { ...c, times };
-      }),
-    [update],
+  const update = useCallback(
+    (habit: Habit) => change((list) => list.map((h) => (h.id === habit.id ? habit : h))),
+    [change],
   );
+  const remove = useCallback((id: string) => change((list) => list.filter((h) => h.id !== id)), [change]);
+  const move = useCallback((from: number, to: number) => change((list) => moveHabit(list, from, to)), [change]);
 
-  const upsertCustom = useCallback(
-    (habit: CustomHabit) =>
-      update((c) => {
-        const exists = c.custom.some((h) => h.id === habit.id);
-        return {
-          ...c,
-          onboarded: true,
-          custom: exists ? c.custom.map((h) => (h.id === habit.id ? habit : h)) : [...c.custom, habit],
-        };
-      }),
-    [update],
-  );
-
-  const removeCustom = useCallback(
-    (id: string) => update((c) => ({ ...c, custom: c.custom.filter((h) => h.id !== id) })),
-    [update],
-  );
-
-  return { config, save, setEnabled, setTime, upsertCustom, removeCustom };
+  return { config, add, update, remove, move };
 }

@@ -1,56 +1,94 @@
-import { BOOK_HABITS, defaultHabitConfig, describeTime, normalizeHabitConfig, resolveTime } from '../habits';
-import { DEFAULT_SETTINGS, buildDayItems } from '../plan';
+import {
+  ESSENTIAL_IDS,
+  LIBRARY_HABITS,
+  buildToday,
+  defaultHabitConfig,
+  describeFreq,
+  describeTime,
+  moveHabit,
+  nextTimed,
+  normalizeHabitConfig,
+  resolveTime,
+  todayProgress,
+  weekDates,
+} from '../habits';
+import { DEFAULT_SETTINGS } from '../plan';
 import { toMinutes } from '../time';
+import type { HabitConfig } from '../../types';
 
-const monday = new Date(2026, 9, 12, 10, 0);
+const saturday = new Date(2026, 9, 17, 20, 0); // sábado 17/10/2026
 
-describe('hábitos', () => {
-  it('empieza solo con los 5 esenciales', () => {
+describe('catálogo y configuración inicial', () => {
+  it('convierte los 47 protocolos en hábitos con ids únicos', () => {
+    expect(LIBRARY_HABITS).toHaveLength(47);
+    expect(new Set(LIBRARY_HABITS.map((h) => h.id)).size).toBe(47);
+  });
+
+  it('empieza con los 5 esenciales pedidos, en orden', () => {
     const c = defaultHabitConfig();
-    expect(c.onboarded).toBe(false);
-    expect(Object.keys(c.enabled).sort()).toEqual(['cafe', 'corte', 'dormir', 'luces', 'luz']);
-    expect(BOOK_HABITS).toHaveLength(15);
-    expect(new Set(BOOK_HABITS.map((h) => h.id)).size).toBe(15);
+    expect(c.list.map((h) => h.what)).toEqual([
+      'Horario según tu cronotipo',
+      'Cardio 3 veces por semana',
+      'Fuerza 3 veces por semana',
+      'Hidrátate',
+      'Al menos un 90 % sin procesar',
+    ]);
+    expect(c.list.map((h) => h.id)).toEqual([...ESSENTIAL_IDS]);
+    expect(c.list[1]?.freq).toEqual({ per: 'week', times: 3 });
+    expect(c.list[0]?.time).toEqual({ anchor: 'bed', offset: 0 });
   });
 
-  it('resuelve horas relativas y fijas', () => {
-    expect(resolveTime({ anchor: 'wake', offset: 75 }, DEFAULT_SETTINGS)).toBe(toMinutes('08:15'));
-    expect(resolveTime({ anchor: 'bed', offset: -600 }, DEFAULT_SETTINGS)).toBe(toMinutes('13:00'));
-    expect(resolveTime({ anchor: 'sunset', offset: -45 }, DEFAULT_SETTINGS)).toBe(toMinutes('18:45'));
-    expect(resolveTime({ anchor: 'fixed', offset: 1290 }, DEFAULT_SETTINGS)).toBe(toMinutes('21:30'));
-    expect(resolveTime({ anchor: 'bed', offset: 120 }, { ...DEFAULT_SETTINGS, bed: '23:30' })).toBe(toMinutes('01:30'));
+  it('sustituye la configuración antigua por los esenciales', () => {
+    expect(normalizeHabitConfig({ onboarded: true, enabled: { luz: true }, times: {}, custom: [] }).list).toHaveLength(5);
+    expect(normalizeHabitConfig(null).list).toHaveLength(5);
+    expect(normalizeHabitConfig({ version: 2, list: [] }).list).toEqual([]);
   });
 
-  it('describe la hora en lenguaje natural', () => {
-    expect(describeTime({ anchor: 'wake', offset: 0 })).toBe('al despertar');
-    expect(describeTime({ anchor: 'wake', offset: 75 })).toBe('1 h 15 min después de despertar');
-    expect(describeTime({ anchor: 'bed', offset: -60 })).toBe('1 h antes de dormir');
-    expect(describeTime({ anchor: 'sunset', offset: -45 })).toBe('45 min antes de la puesta de sol');
-    expect(describeTime({ anchor: 'fixed', offset: 1290 })).toBe('a las 21:30');
-  });
-
-  it('completa documentos parciales', () => {
-    const c = normalizeHabitConfig({ onboarded: true });
-    expect(c.onboarded).toBe(true);
-    expect(c.custom).toEqual([]);
-    expect(c.enabled.luz).toBe(true);
+  it('reordena', () => {
+    const list = defaultHabitConfig().list;
+    expect(moveHabit(list, 0, 2).map((h) => h.id)[2]).toBe('lib-sueno-4');
+    expect(moveHabit(list, 4, 0)[0]?.id).toBe('lib-nutricion-1');
   });
 });
 
-describe('plan del día con hábitos', () => {
-  it('muestra solo los activos, con horas cambiadas y propios', () => {
-    const items = buildDayItems(DEFAULT_SETTINGS, monday, {
-      onboarded: true,
-      enabled: { luz: true, dormir: true, paseo: false },
-      times: { luz: { anchor: 'wake', offset: 30 } },
-      custom: [{ id: 'c-1', what: 'Estiramientos', how: '', tag: 'cuerpo', time: { anchor: 'fixed', offset: 1260 } }],
-    });
-    expect(items.map((i) => i.id)).toEqual(['luz', 'c-1', 'dormir']);
-    expect(items[0]?.t).toBe(toMinutes('07:30'));
-    expect(items[1]?.t).toBe(toMinutes('21:00'));
+describe('horas y textos', () => {
+  it('resuelve horas', () => {
+    expect(resolveTime({ anchor: 'wake', offset: 75 }, DEFAULT_SETTINGS)).toBe(toMinutes('08:15'));
+    expect(resolveTime({ anchor: 'bed', offset: 120 }, { ...DEFAULT_SETTINGS, bed: '23:30' })).toBe(toMinutes('01:30'));
+    expect(resolveTime({ anchor: 'fixed', offset: 1290 }, DEFAULT_SETTINGS)).toBe(toMinutes('21:30'));
   });
 
-  it('sin hábitos activos, el plan está vacío', () => {
-    expect(buildDayItems(DEFAULT_SETTINGS, monday, { onboarded: true, enabled: {}, times: {}, custom: [] })).toEqual([]);
+  it('describe hora y frecuencia', () => {
+    expect(describeTime({ anchor: 'bed', offset: 0 })).toBe('al dormir');
+    expect(describeTime({ anchor: 'wake', offset: 75 })).toBe('1 h 15 min después de despertar');
+    expect(describeFreq({ per: 'day' })).toBe('Cada día');
+    expect(describeFreq({ per: 'week', times: 3 })).toBe('3 veces por semana');
+  });
+});
+
+describe('plan de hoy', () => {
+  const config: HabitConfig = defaultHabitConfig();
+  const week = weekDates(saturday);
+
+  it('la semana va de lunes a domingo', () => {
+    expect(week[0]).toBe('2026-10-12');
+    expect(week[6]).toBe('2026-10-18');
+  });
+
+  it('cuenta los semanales y deja fuera los ya cumplidos', () => {
+    const checks = new Set(['2026-10-12:lib-ejercicio-3', '2026-10-14:lib-ejercicio-3', '2026-10-16:lib-ejercicio-3', '2026-10-17:lib-nutricion-2']);
+    const items = buildToday(config, DEFAULT_SETTINGS, saturday, (d, id) => checks.has(`${d}:${id}`));
+    const cardio = items.find((i) => i.habit.id === 'lib-ejercicio-3')!;
+    expect(cardio.weekDone).toBe(3);
+    expect(cardio.weekMet).toBe(true);
+    expect(todayProgress(items)).toEqual({ done: 1, total: 4 });
+    expect(items.map((i) => i.habit.id)).toEqual([...ESSENTIAL_IDS]);
+  });
+
+  it('el siguiente con hora es el horario de dormir', () => {
+    const items = buildToday(config, DEFAULT_SETTINGS, saturday, () => false);
+    expect(nextTimed(items, toMinutes('20:00'), DEFAULT_SETTINGS.wake)?.habit.id).toBe('lib-sueno-4');
+    const done = buildToday(config, DEFAULT_SETTINGS, saturday, (_d, id) => id === 'lib-sueno-4');
+    expect(nextTimed(done, toMinutes('20:00'), DEFAULT_SETTINGS.wake)).toBeNull();
   });
 });

@@ -1,44 +1,132 @@
-import type { Anchor, CustomHabit, HabitConfig, HabitTier, HabitTime, Settings, Tag } from '../types';
-import { formatTime, toMinutes, wrap } from './time';
+import type { Anchor, Habit, HabitConfig, HabitFreq, HabitTime, LibCategoryId, Settings, Tag } from '../types';
+import { LIBRARY } from './protocols';
+import { dateKey, formatTime, toMinutes, weekStart, wrap } from './time';
 
-/** Habito del libro: texto, nivel, hora por defecto y protocolo de origen. */
-export interface BookHabit {
-  id: string;
-  tier: HabitTier;
-  tag: Tag;
-  what: string;
-  how: string;
-  /** Protocolo del libro en el que se basa. */
-  source: string;
-  time: HabitTime;
+export const HABITS_DOC = 'habits';
+
+// --- Catalogo: los 47 protocolos del libro como habitos ---------------------
+
+const CATEGORY_TAG: Record<LibCategoryId, Tag> = {
+  sueno: 'sueno',
+  luz: 'luz',
+  estres: 'estres',
+  ejercicio: 'cuerpo',
+  nutricion: 'cuerpo',
+  aprendizaje: 'mente',
+  crecimiento: 'mente',
+};
+
+/** Frecuencia por defecto de los protocolos que no son diarios. */
+const LIB_FREQ: Record<string, HabitFreq> = {
+  'lib-ejercicio-2': { per: 'week', times: 3 },
+  'lib-ejercicio-3': { per: 'week', times: 3 },
+  'lib-ejercicio-4': { per: 'week', times: 3 },
+  'lib-estres-2': { per: 'week', times: 3 },
+  'lib-luz-4': { per: 'week', times: 3 },
+  'lib-luz-5': { per: 'week', times: 3 },
+  'lib-nutricion-7': { per: 'week', times: 2 },
+};
+
+/** Hora por defecto de los protocolos ligados a un momento del dia. */
+const LIB_TIME: Record<string, HabitTime> = {
+  'lib-sueno-1': { anchor: 'wake', offset: 10 },
+  'lib-sueno-2': { anchor: 'sunset', offset: -45 },
+  'lib-sueno-3': { anchor: 'bed', offset: -60 },
+  'lib-sueno-4': { anchor: 'bed', offset: 0 },
+  'lib-sueno-5': { anchor: 'bed', offset: -90 },
+  'lib-sueno-12': { anchor: 'bed', offset: -480 },
+  'lib-sueno-14': { anchor: 'bed', offset: -60 },
+  'lib-estres-4': { anchor: 'wake', offset: 0 },
+  'lib-luz-1': { anchor: 'wake', offset: 10 },
+  'lib-luz-2': { anchor: 'sunset', offset: -30 },
+  'lib-luz-3': { anchor: 'bed', offset: -60 },
+};
+
+/** Texto corto para la lista de Hoy cuando el del libro es largo. */
+const LIB_HOW: Record<string, string> = {
+  'lib-sueno-4': 'Mismo horario ±30 min de 6 a 7 noches por semana.',
+  'lib-ejercicio-2': 'Piernas, torso, y hombros con brazos en días separados.',
+  'lib-ejercicio-3': 'Uno largo, uno medio y uno intenso. Detalle en Semana.',
+  'lib-nutricion-1': 'Alimentos de un solo ingrediente; nada de salsas ni envasados con azúcar.',
+  'lib-nutricion-2': '0,5–0,7 L al despertar y unos 2,4 L en las primeras 10 h.',
+};
+
+export interface LibraryHabit extends Habit {
+  category: LibCategoryId;
+  categoryName: string;
 }
 
-/** El orden aqui es el de la pantalla de eleccion. Los ids no cambian: son las claves de las casillas. */
-export const BOOK_HABITS: readonly BookHabit[] = [
-  { id: 'luz', tier: 'esencial', tag: 'luz', what: 'Luz natural en los ojos', how: '5–10 min fuera, mirando hacia el sol sin fijar la vista. 10–30 min si está nublado. Sin gafas de sol ni cristal.', source: 'Sueño · Luz solar nada más despertar', time: { anchor: 'wake', offset: 10 } },
-  { id: 'cafe', tier: 'esencial', tag: 'cuerpo', what: 'Primera cafeína', how: 'Retrásala entre 30 y 90 min tras despertar para evitar el bajón de la tarde.', source: 'Sueño · Ajusta la cafeína', time: { anchor: 'wake', offset: 75 } },
-  { id: 'corte', tier: 'esencial', tag: 'sueno', what: 'Última cafeína', how: 'Nada de cafeína en las 8–10 h antes de dormir.', source: 'Sueño · Ajusta la cafeína', time: { anchor: 'bed', offset: -600 } },
-  { id: 'luces', tier: 'esencial', tag: 'luz', what: 'Luces bajas y pantallas fuera', how: 'Luz cálida o roja, nada de LED blanco. Dormitorio a 18–20 °C.', source: 'Luz · Evita la luz brillante antes de dormir', time: { anchor: 'bed', offset: -60 } },
-  { id: 'dormir', tier: 'esencial', tag: 'sueno', what: 'A dormir', how: 'Pies y manos fuera de la manta. Si te despiertas, no mires el reloj ni enciendas luces.', source: 'Sueño · Horario según tu cronotipo', time: { anchor: 'bed', offset: 0 } },
+export const LIBRARY_HABITS: readonly LibraryHabit[] = LIBRARY.flatMap((cat) =>
+  cat.protocols.map((p, i): LibraryHabit => {
+    const id = `lib-${cat.id}-${i + 1}`;
+    return {
+      id,
+      source: 'libro',
+      what: p.title,
+      how: LIB_HOW[id] ?? p.points[0] ?? '',
+      tag: CATEGORY_TAG[cat.id],
+      freq: LIB_FREQ[id] ?? { per: 'day' },
+      time: LIB_TIME[id] ?? null,
+      category: cat.id,
+      categoryName: cat.name,
+    };
+  }),
+);
 
-  { id: 'agua', tier: 'recomendado', tag: 'cuerpo', what: 'Agua al despertar', how: '0,5–0,7 L antes del café.', source: 'Nutrición · Hidrátate', time: { anchor: 'wake', offset: 0 } },
-  { id: 'medit', tier: 'recomendado', tag: 'estres', what: 'Micromeditación en la cama', how: '5 min. Si te entran ganas de levantarte, quédate: es entrenamiento de resiliencia.', source: 'Estrés · Micromeditación al despertar', time: { anchor: 'wake', offset: 0 } },
-  { id: 'mover', tier: 'recomendado', tag: 'cuerpo', what: 'Entrenamiento del día', how: 'Según tu plan semanal. Mejor en las primeras 2–3 h del día.', source: 'Ejercicio · Plan semanal', time: { anchor: 'wake', offset: 120 } },
-  { id: 'paseo', tier: 'recomendado', tag: 'cuerpo', what: 'Paseo después de comer', how: '5–10 min. Y 5 min de movimiento por cada 30 sentada.', source: 'Ejercicio · Camina todo lo que puedas', time: { anchor: 'wake', offset: 360 } },
-  { id: 'tarde', tier: 'recomendado', tag: 'luz', what: 'Luz del atardecer', how: '10–15 min fuera antes de la puesta, mirando hacia el oeste.', source: 'Luz · Sol al atardecer', time: { anchor: 'sunset', offset: -45 } },
-  { id: 'cena', tier: 'recomendado', tag: 'sueno', what: 'Última comida', how: '2–3 h antes de dormir. Si tienes hambre real, algo ligero 1 h antes.', source: 'Sueño · Horario según tu cronotipo', time: { anchor: 'bed', offset: -180 } },
-  { id: 'ducha', tier: 'recomendado', tag: 'sueno', what: 'Ducha o baño caliente', how: 'Calentar manos y pies ayuda a que baje la temperatura central.', source: 'Sueño · Baja la temperatura por la noche', time: { anchor: 'bed', offset: -90 } },
+export function libraryHabit(id: string): LibraryHabit | undefined {
+  return LIBRARY_HABITS.find((h) => h.id === id);
+}
 
-  { id: 'nsdr', tier: 'opcional', tag: 'estres', what: 'NSDR si notas el bajón', how: '10–20 min en lugar de siesta. Tienes la guía en Herramientas.', source: 'Estrés · NSDR contra el estrés', time: { anchor: 'wake', offset: 420 } },
-  { id: 'agua2', tier: 'opcional', tag: 'cuerpo', what: 'Unos 2,4 L de agua acumulados', how: 'Bebe sobre todo en las primeras 10 h para no despertarte de noche.', source: 'Nutrición · Hidrátate', time: { anchor: 'wake', offset: 600 } },
-  { id: 'alcohol', tier: 'opcional', tag: 'sueno', what: 'Sin alcohol desde aquí', how: 'Si bebes, nada en las 8 h previas a dormir. Cuanto menos, mejor.', source: 'Sueño · Sin alcohol 8 h antes de dormir', time: { anchor: 'bed', offset: -480 } },
-];
+/** Los esenciales con los que empieza todo el mundo, en este orden. */
+export const ESSENTIAL_IDS = [
+  'lib-sueno-4', // Horario segun tu cronotipo
+  'lib-ejercicio-3', // Cardio 3 veces por semana
+  'lib-ejercicio-2', // Fuerza 3 veces por semana
+  'lib-nutricion-2', // Hidratate
+  'lib-nutricion-1', // Al menos un 90 % sin procesar
+] as const;
 
-export const TIER_LABEL: Record<HabitTier, string> = {
-  esencial: 'Esenciales',
-  recomendado: 'Recomendados',
-  opcional: 'Opcionales',
-};
+function toHabit(h: LibraryHabit): Habit {
+  return { id: h.id, source: h.source, what: h.what, how: h.how, tag: h.tag, freq: h.freq, time: h.time };
+}
+
+export function defaultHabitConfig(): HabitConfig {
+  return { version: 2, list: ESSENTIAL_IDS.map((id) => toHabit(libraryHabit(id)!)) };
+}
+
+/** El documento antiguo (v1, con habitos activados por casilla) se sustituye por los esenciales. */
+export function normalizeHabitConfig(raw: unknown): HabitConfig {
+  if (!raw || typeof raw !== 'object') return defaultHabitConfig();
+  const r = raw as Partial<HabitConfig>;
+  if (r.version !== 2 || !Array.isArray(r.list)) return defaultHabitConfig();
+  return { version: 2, list: r.list.filter(isHabit) };
+}
+
+function isHabit(h: unknown): h is Habit {
+  if (!h || typeof h !== 'object') return false;
+  const x = h as Partial<Habit>;
+  return typeof x.id === 'string' && typeof x.what === 'string' && !!x.freq && typeof x.tag === 'string';
+}
+
+export function fromLibrary(id: string): Habit | null {
+  const h = libraryHabit(id);
+  return h ? toHabit(h) : null;
+}
+
+export function newCustomHabit(partial: Omit<Habit, 'id' | 'source'>): Habit {
+  const rand = Math.random().toString(36).slice(2, 8);
+  return { ...partial, id: `c-${Date.now().toString(36)}${rand}`, source: 'propio' };
+}
+
+export function moveHabit(list: readonly Habit[], from: number, to: number): Habit[] {
+  const next = [...list];
+  const [item] = next.splice(from, 1);
+  if (!item) return next;
+  next.splice(Math.max(0, Math.min(next.length, to)), 0, item);
+  return next;
+}
+
+// --- Horas ---------------------------------------------------------------
 
 const ANCHOR_LABEL: Record<Anchor, string> = {
   wake: 'despertar',
@@ -47,35 +135,12 @@ const ANCHOR_LABEL: Record<Anchor, string> = {
   fixed: 'hora fija',
 };
 
-/** Etiquetas para el selector de referencia. */
 export const ANCHOR_OPTIONS: readonly { value: Anchor; label: string }[] = [
   { value: 'wake', label: 'Despertar' },
   { value: 'bed', label: 'Dormir' },
   { value: 'sunset', label: 'Puesta de sol' },
   { value: 'fixed', label: 'Hora fija' },
 ];
-
-/** Configuracion inicial: solo los esenciales. */
-export function defaultHabitConfig(): HabitConfig {
-  return {
-    onboarded: false,
-    enabled: Object.fromEntries(BOOK_HABITS.filter((h) => h.tier === 'esencial').map((h) => [h.id, true])),
-    times: {},
-    custom: [],
-  };
-}
-
-/** Completa un documento `habits` parcial o antiguo con valores validos. */
-export function normalizeHabitConfig(raw: Partial<HabitConfig> | null | undefined): HabitConfig {
-  const base = defaultHabitConfig();
-  if (!raw) return base;
-  return {
-    onboarded: Boolean(raw.onboarded),
-    enabled: raw.enabled && typeof raw.enabled === 'object' ? raw.enabled : base.enabled,
-    times: raw.times && typeof raw.times === 'object' ? raw.times : {},
-    custom: Array.isArray(raw.custom) ? raw.custom : [],
-  };
-}
 
 /** Minuto del dia de una hora relativa, segun los horarios de la persona. */
 export function resolveTime(time: HabitTime, settings: Pick<Settings, 'wake' | 'bed' | 'sunset'>): number {
@@ -103,17 +168,66 @@ export function describeTime(time: HabitTime): string {
   return `${amount} ${time.offset < 0 ? 'antes de' : 'después de'} ${target}`;
 }
 
-export function bookTimeFor(habit: BookHabit, config: HabitConfig): HabitTime {
-  return config.times[habit.id] ?? habit.time;
+export function describeFreq(freq: HabitFreq): string {
+  return freq.per === 'day' ? 'Cada día' : `${freq.times} ${freq.times === 1 ? 'vez' : 'veces'} por semana`;
 }
 
-export function isEnabled(id: string, config: HabitConfig): boolean {
-  return Boolean(config.enabled[id]);
+// --- Plan de hoy ----------------------------------------------------------
+
+export interface TodayHabit {
+  habit: Habit;
+  /** Minuto del dia si tiene hora. */
+  t: number | null;
+  doneToday: boolean;
+  /** Solo semanales: dias hechos esta semana (lunes a domingo). */
+  weekDone: number;
+  /** Semanal con el objetivo ya cumplido y sin marcar hoy: no cuenta para el progreso. */
+  weekMet: boolean;
 }
 
-export function newCustomHabit(partial: Omit<CustomHabit, 'id'>): CustomHabit {
-  const rand = Math.random().toString(36).slice(2, 8);
-  return { ...partial, id: `c-${Date.now().toString(36)}${rand}` };
+/** Fechas ("YYYY-MM-DD") de la semana de `date`, de lunes a domingo. */
+export function weekDates(date: Date): string[] {
+  const start = new Date(weekStart(date));
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    return dateKey(d);
+  });
 }
 
-export const HABITS_DOC = 'habits';
+/**
+ * Estado de cada habito para hoy, en el orden de la persona.
+ * `isChecked(dia, id)` lee las casillas guardadas.
+ */
+export function buildToday(
+  config: HabitConfig,
+  settings: Settings,
+  date: Date,
+  isChecked: (day: string, id: string) => boolean,
+): TodayHabit[] {
+  const today = dateKey(date);
+  const week = weekDates(date);
+  return config.list.map((habit) => {
+    const doneToday = isChecked(today, habit.id);
+    const weekDone = habit.freq.per === 'week' ? week.filter((d) => isChecked(d, habit.id)).length : 0;
+    const weekMet = habit.freq.per === 'week' && !doneToday && weekDone >= habit.freq.times;
+    return { habit, t: habit.time ? resolveTime(habit.time, settings) : null, doneToday, weekDone, weekMet };
+  });
+}
+
+/** Progreso de hoy: los semanales ya cumplidos no cuentan si no se hacen hoy. */
+export function todayProgress(items: readonly TodayHabit[]): { done: number; total: number } {
+  const relevant = items.filter((i) => !i.weekMet);
+  return { done: relevant.filter((i) => i.doneToday).length, total: relevant.length };
+}
+
+/** Siguiente habito con hora pendiente (no mas de 15 min pasado), contando desde el despertar. */
+export function nextTimed(items: readonly TodayHabit[], now: number, wake: string): TodayHabit | null {
+  const W = toMinutes(wake);
+  const rel = (m: number): number => wrap(m - W);
+  const nowRel = rel(now);
+  const pending = items
+    .filter((i) => i.t !== null && !i.doneToday && !i.weekMet && rel(i.t) >= nowRel - 15)
+    .sort((a, b) => rel(a.t!) - rel(b.t!));
+  return pending[0] ?? null;
+}
