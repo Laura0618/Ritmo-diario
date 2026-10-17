@@ -88,8 +88,7 @@ export function HoyPage(): JSX.Element {
           </label>
         </div>
         <p className="note spaced">
-          Mantén el mismo horario ±30 min de 6 a 7 noches por semana. El punto en la franja de sueño marca tu mínimo de
-          temperatura, unas 2 h antes de despertar.
+          Mantén el mismo horario ±30 min de 6 a 7 noches por semana.
         </p>
       </section>
 

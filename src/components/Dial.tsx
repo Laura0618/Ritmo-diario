@@ -37,12 +37,11 @@ interface DialProps {
   children?: ReactNode;
 }
 
-/** Reloj de 24 h con sueño, ventanas de luz, luz tenue, cafeina y minimo de temperatura. */
+/** Reloj de 24 h con sueño, ventanas de luz, luz tenue y cafeina. */
 export function Dial({ wake, bed, sunset, now, marks = [], children }: DialProps): JSX.Element {
   const W = toMinutes(wake);
   const B = toMinutes(bed);
   const SS = toMinutes(sunset);
-  const [tx, ty] = polar(W - 120, RING_R);
   const [hx, hy] = polar(now, 140);
   const [bx, by] = polar(now, 92);
 
@@ -92,9 +91,6 @@ export function Dial({ wake, bed, sunset, now, marks = [], children }: DialProps
           const [mx, my] = polar(m.t, 108);
           return <circle key={i} cx={mx} cy={my} r={3.5} fill={TAG_COLOR[m.tag]} stroke="var(--surface)" strokeWidth={1.5} />;
         })}
-        <circle cx={tx} cy={ty} r={4.5} fill="var(--surface)" stroke="var(--blue)" strokeWidth={2}>
-          <title>Mínimo de temperatura</title>
-        </circle>
         <line x1={bx} y1={by} x2={hx} y2={hy} stroke="var(--ink)" strokeWidth={2.5} strokeLinecap="round" />
         <circle cx={hx} cy={hy} r={4} fill="var(--ink)" />
       </svg>
